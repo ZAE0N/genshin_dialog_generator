@@ -75,6 +75,9 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 .choice-row { display:flex; gap:6px; margin-top:6px; }
 .choice-row input { flex:1; }
 .choice-row button { flex:none; padding:6px 10px; }
+.choice-row .sel { padding:6px 9px; color:var(--ink-dim); }
+.choice-row.selected .sel { color:#fff; border-color:#fff; }
+.choice-row.selected input { border-color:rgba(255,255,255,.65); }
 .hint { font-size:11.5px; color:var(--ink-dim); line-height:1.5; margin:6px 0 0; }
 #dims { font-size:11.5px; color:var(--ink-dim); }
 #fileBtn { width:100%; }
@@ -122,7 +125,11 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <input type="text" id="name" placeholder="예: 페이몬" value="페이몬">
       <label for="subtitle">부제 (선택)</label>
       <input type="text" id="subtitle" placeholder="예: 최고의 동료">
-      <label for="text">대사</label>
+      <div class="row" style="justify-content:space-between; margin-top:8px">
+        <label for="text" style="margin:0">대사</label>
+        <button id="clearText" type="button" title="입력한 대사 지우기" aria-label="대사 지우기"
+                style="padding:2px 9px; font-size:12px; line-height:1.6">✕</button>
+      </div>
       <textarea id="text" placeholder="대사를 입력하세요">여기에 대사를 입력하면 자동으로 줄바꿈되고, 이미지 크기에 맞춰 글자 크기가 정해져!</textarea>
       <div class="row" style="margin-top:10px">
         <input type="checkbox" id="showTri" checked>
@@ -134,6 +141,10 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <legend>선택지</legend>
       <div id="choices"></div>
       <button id="addChoice" style="margin-top:8px">+ 선택지 추가</button>
+      <div class="row" style="margin-top:10px">
+        <input type="checkbox" id="choiceYellow">
+        <label for="choiceYellow">선택 표시(●)된 선택지 노란색 (클릭 효과)</label>
+      </div>
       <p class="hint">비워두면 선택지는 표시되지 않아요. 화면 오른쪽 끝에 인게임처럼 밀착됩니다.</p>
     </fieldset>
 
@@ -181,7 +192,7 @@ const state = {
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
   choices: [],
-  showTri: true, scale: 1,
+  showTri: true, choiceYellow: false, scale: 1, selectedChoice: -1,
 };
 
 const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
@@ -413,25 +424,35 @@ function render() {
       ctx.closePath();
       /* fill/outline fade measured on the in-game shot: near-opaque navy behind
          the icon/text, dissolving to almost nothing by ~70% of the pill width */
+      /* fill holds dark through the text zone; the fade is concentrated in the
+         tail so the choice text stays clearly readable, as in game */
       const fillG = ctx.createLinearGradient(x0, 0, W, 0);
       fillG.addColorStop(0, "rgba(40,48,66,.80)");
-      fillG.addColorStop(.30, "rgba(40,48,66,.62)");
-      fillG.addColorStop(.55, "rgba(40,48,66,.30)");
-      fillG.addColorStop(.78, "rgba(40,48,66,.07)");
+      fillG.addColorStop(.50, "rgba(40,48,66,.74)");
+      fillG.addColorStop(.72, "rgba(40,48,66,.45)");
+      fillG.addColorStop(.88, "rgba(40,48,66,.12)");
       fillG.addColorStop(1, "rgba(40,48,66,.03)");
       ctx.fillStyle = fillG;
       ctx.fill();
+      const selected = i === state.selectedChoice;
       const strokeG = ctx.createLinearGradient(x0, 0, W, 0);
-      strokeG.addColorStop(0, "rgba(205,210,203,.50)");
-      strokeG.addColorStop(.45, "rgba(205,210,203,.28)");
-      strokeG.addColorStop(.72, "rgba(205,210,203,0)");
+      if (selected) {
+        /* in-game selection: bright white outline, still fading toward the tail */
+        strokeG.addColorStop(0, "rgba(255,255,255,.95)");
+        strokeG.addColorStop(.55, "rgba(255,255,255,.60)");
+        strokeG.addColorStop(.88, "rgba(255,255,255,0)");
+      } else {
+        strokeG.addColorStop(0, "rgba(205,210,203,.50)");
+        strokeG.addColorStop(.50, "rgba(205,210,203,.30)");
+        strokeG.addColorStop(.82, "rgba(205,210,203,0)");
+      }
       ctx.strokeStyle = strokeG;
-      ctx.lineWidth = Math.max(1, base * 0.0018);
+      ctx.lineWidth = Math.max(1, base * (selected ? 0.0030 : 0.0018));
       ctx.stroke();
 
       drawBubbleIcon(x0 + padL, top + (h - iconH) / 2, iconH);
 
-      ctx.fillStyle = CHOICE_TEXT;
+      ctx.fillStyle = (selected && state.choiceYellow) ? "#ffd76a" : CHOICE_TEXT;
       ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base * 0.004;
@@ -477,6 +498,7 @@ for (const id of ["name", "subtitle", "text"]) {
   state[id] = $(id).value;
 }
 $("showTri").addEventListener("change", () => { state.showTri = $("showTri").checked; render(); });
+$("choiceYellow").addEventListener("change", () => { state.choiceYellow = $("choiceYellow").checked; render(); });
 $("scale").addEventListener("input", () => {
   state.scale = parseFloat($("scale").value);
   $("scaleVal").textContent = state.scale.toFixed(2);
@@ -512,21 +534,40 @@ $("fontReset").addEventListener("click", () => {
   render();
 });
 
+$("clearText").addEventListener("click", () => {
+  $("text").value = ""; state.text = "";
+  render();
+});
+
 /* choices list */
 function syncChoices() {
-  state.choices = [...document.querySelectorAll("#choices input")].map(i => i.value);
+  const rows = [...document.querySelectorAll("#choices .choice-row")];
+  state.choices = rows.map(r => r.querySelector("input").value);
+  state.selectedChoice = rows.findIndex(r => r.classList.contains("selected"));
   render();
 }
 function addChoiceRow(value) {
   const row = document.createElement("div");
   row.className = "choice-row";
+  const sel = document.createElement("button");
+  sel.type = "button"; sel.className = "sel"; sel.textContent = "○";
+  sel.title = "선택된 상태로 표시 (흰 테두리)"; sel.setAttribute("aria-label", "선택 표시");
+  sel.addEventListener("click", () => {
+    const was = row.classList.contains("selected");
+    document.querySelectorAll("#choices .choice-row").forEach(r => {
+      r.classList.remove("selected");
+      r.querySelector(".sel").textContent = "○";
+    });
+    if (!was) { row.classList.add("selected"); sel.textContent = "●"; }
+    syncChoices();
+  });
   const input = document.createElement("input");
   input.type = "text"; input.placeholder = "선택지 내용"; input.value = value || "";
   input.addEventListener("input", syncChoices);
   const del = document.createElement("button");
   del.type = "button"; del.textContent = "✕"; del.setAttribute("aria-label", "선택지 삭제");
   del.addEventListener("click", () => { row.remove(); syncChoices(); });
-  row.append(input, del);
+  row.append(sel, input, del);
   $("choices").append(row);
 }
 $("addChoice").addEventListener("click", () => { addChoiceRow(""); syncChoices(); });
