@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>원신 대화창 편집기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#14161c; --panel:#1c1f27; --panel-2:#242832; --line:#343947;
+  --ink:#ece5d8; --ink-dim:#a9a496; --gold:#d8bd88; --gold-b:#f2d9a5;
+  --accent:#ffbb45;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; height:100%; }
+body {
+  background:var(--bg); color:var(--ink);
+  font-family:"Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;
+  display:flex; flex-direction:column;
+}
+header {
+  padding:12px 20px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+}
+header h1 { margin:0; font-size:16px; font-weight:700; color:var(--gold-b); letter-spacing:.02em; }
+header .sub { font-size:12px; color:var(--ink-dim); }
+main { flex:1; display:flex; min-height:0; }
+/* ---------- preview ---------- */
+#previewWrap {
+  flex:1; min-width:0; display:flex; align-items:center; justify-content:center;
+  padding:18px; overflow:auto; background:
+    repeating-conic-gradient(#191c23 0% 25%, #15181e 0% 50%) 0 0/22px 22px;
+}
+#stageWrap { position:relative; max-width:100%; max-height:100%; display:flex; }
+#stage { max-width:100%; max-height:100%; box-shadow:0 20px 50px -20px rgba(0,0,0,.7); border-radius:4px; }
+#clearImg {
+  position:absolute; top:7px; right:7px; width:26px; height:26px; padding:0;
+  border-radius:50%; background:rgba(14,16,20,.72); color:#ece5d8;
+  border:1px solid rgba(236,229,216,.4); font-size:12px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+}
+#clearImg:hover { background:rgba(180,60,50,.85); border-color:transparent; color:#fff; }
+#clearImg[hidden] { display:none; }
+/* ---------- controls ---------- */
+#panel {
+  width:330px; flex:none; border-left:1px solid var(--line); background:var(--panel);
+  overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px;
+}
+fieldset { border:1px solid var(--line); border-radius:10px; padding:12px 12px 14px; margin:0; }
+legend { font-size:12px; color:var(--gold); padding:0 6px; letter-spacing:.08em; }
+label { display:block; font-size:12px; color:var(--ink-dim); margin:8px 0 4px; }
+input[type=text], textarea {
+  width:100%; background:var(--panel-2); color:var(--ink); border:1px solid var(--line);
+  border-radius:7px; padding:8px 10px; font-size:14px; font-family:inherit;
+}
+textarea { resize:vertical; min-height:64px; }
+input:focus, textarea:focus { outline:2px solid var(--gold); outline-offset:-1px; }
+.row { display:flex; gap:8px; align-items:center; }
+.row label { margin:0; }
+input[type=range] { flex:1; accent-color:var(--gold); }
+input[type=checkbox] { accent-color:var(--gold); width:15px; height:15px; }
+button {
+  background:var(--panel-2); color:var(--ink); border:1px solid var(--line);
+  border-radius:8px; padding:8px 12px; font-size:13px; font-family:inherit; cursor:pointer;
+}
+button:hover { border-color:var(--gold); color:var(--gold-b); }
+button:focus-visible { outline:2px solid var(--gold); outline-offset:1px; }
+button.primary {
+  background:linear-gradient(180deg,#e8cc96,#cfae74); color:#26200f; font-weight:700;
+  border:none; padding:11px 14px; font-size:14px; width:100%;
+}
+button.primary:hover { filter:brightness(1.06); color:#26200f; }
+.choice-row { display:flex; gap:6px; margin-top:6px; }
+.choice-row input { flex:1; }
+.choice-row button { flex:none; padding:6px 10px; }
+.hint { font-size:11.5px; color:var(--ink-dim); line-height:1.5; margin:6px 0 0; }
+#dims { font-size:11.5px; color:var(--ink-dim); }
+#fileBtn { width:100%; }
+@media (max-width:760px) {
+  body { height:auto; min-height:100%; }
+  main { flex-direction:column; }
+  header { padding:10px 14px; }
+  header .sub { display:none; }
+  #previewWrap { min-height:0; padding:12px; }
+  #stage { max-height:52vh; width:auto; }
+  #panel { width:100%; border-left:none; border-top:1px solid var(--line); padding:14px 14px 28px; }
+  /* touch-friendly: bigger targets, 16px inputs so iOS doesn't zoom on focus */
+  input[type=text], textarea { font-size:16px; padding:10px 12px; }
+  button { padding:11px 14px; font-size:15px; }
+  .choice-row button { padding:10px 14px; }
+  input[type=checkbox] { width:19px; height:19px; }
+  label { font-size:13px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>원신 대화창 편집기</h1>
+  <span class="sub">이미지를 올리면 크기에 맞춰 대화창·선택지가 자동 배치됩니다</span>
+</header>
+<main>
+  <div id="previewWrap">
+    <div id="stageWrap">
+      <canvas id="stage" width="1280" height="720"></canvas>
+      <button id="clearImg" hidden aria-label="업로드한 이미지 지우기" title="이미지 지우기">✕</button>
+    </div>
+  </div>
+
+  <div id="panel">
+    <fieldset>
+      <legend>이미지</legend>
+      <input type="file" id="file" accept="image/*" hidden>
+      <button id="fileBtn">이미지 업로드…</button>
+      <p id="dims">아직 업로드 안 됨 — 기본 캔버스 1280×720</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>대화창</legend>
+      <label for="name">이름</label>
+      <input type="text" id="name" placeholder="예: 페이몬" value="페이몬">
+      <label for="subtitle">부제 (선택)</label>
+      <input type="text" id="subtitle" placeholder="예: 최고의 동료">
+      <label for="text">대사</label>
+      <textarea id="text" placeholder="대사를 입력하세요">여기에 대사를 입력하면 자동으로 줄바꿈되고, 이미지 크기에 맞춰 글자 크기가 정해져!</textarea>
+      <div class="row" style="margin-top:10px">
+        <input type="checkbox" id="showTri" checked>
+        <label for="showTri">진행 표시 ▾</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>선택지</legend>
+      <div id="choices"></div>
+      <button id="addChoice" style="margin-top:8px">+ 선택지 추가</button>
+      <p class="hint">비워두면 선택지는 표시되지 않아요. 화면 오른쪽 끝에 인게임처럼 밀착됩니다.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>폰트</legend>
+      <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" hidden>
+      <button id="fontBtn">폰트 파일 불러오기…</button>
+      <div class="row" style="margin-top:8px">
+        <p id="fontStatus" class="hint" style="margin:0;flex:1">기본: Noto Sans KR (근사)</p>
+        <button id="fontReset" hidden>초기화</button>
+      </div>
+      <p class="hint">.ttf / .otf / .woff / .woff2 파일을 선택하면 그 폰트로 렌더링됩니다.
+      폰트는 내 브라우저에서만 사용되고 어디에도 업로드되지 않아요.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>크기 조정</legend>
+      <div class="row">
+        <label for="scale" style="width:70px">전체 크기</label>
+        <input type="range" id="scale" min="0.6" max="1.6" step="0.05" value="1">
+        <span id="scaleVal" style="font-size:12px;width:34px;text-align:right">1.00</span>
+      </div>
+    </fieldset>
+
+    <button class="primary" id="save">PNG로 저장</button>
+    <p class="hint">저장은 업로드한 이미지의 <b>원본 해상도</b>로 렌더링됩니다. 미리보기 = 저장 결과.</p>
+  </div>
+</main>
+
+<script>
+"use strict";
+/* ---------- embedded Genshin UI assets (extracted from PathOfGenshin/resources) ---------- */
+const ASSET_BUBBLE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAkCAYAAAD7PHgWAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACZElEQVR42t3YsW7TQBjA8VNAiNHKngGpBTGBhCsh1AkID0AeojxCQBVr2BhTXqCLGREC+Q1clIWKtolYEAEJJc7UhcHhf9Kn6HQ6n11kJ26H39DY9/kvxXEuVbPpmSrl16nX/5/vp65iYIjBfHoWYYIFljPLHFhggkivQVhX4E2G9pAgRSYBwhFo0WuQIkFPzywb6H5Lfq70kMymp8tKSSiUQ6nAAENkWg2BmRgiuGhgh6gYWd2BIkGnbGAHIwlbS6AYoQMr0KhGgASFQTUFJwh8gQNkmwoUg7zAENmmA0VoB15D1KDAyA58yB/nWApZ4ME5Ju/xi887X/z+totV4Gs50IxAELdvBn70DBwiRBdHnoAYOyL2zDtCFyGGnsDPZuBxzsAYSrSwjdQx8CuvtdESbf2aY14qM1pQIs4JPDEDf9g3rXzB9x3fzQnst+gQynJobhb0GiRQMM/r6+P29e3AY1cgYo4FRmCI1BE4xhaU2GLtxBGYIjQCA32NMoEfXIEi4vhThu5hjEwCbQl6ItFr7UAxxp6eqWdj6Qq078G+J9C+gAT6+ddbx92B+1htFu4zdNGgB3VK9L25tZt516DAAx1nB95tUOAdV+ANvGpA4EtcdwUqEcN1E1cp70dVXGZHHSDeQGCMoCjQfIC+X2NgZMQVB4oWC9+sIXDg/9lZ/K+LXXwqehAXba8cH4o/eJxz/VKBti4ipBUGqioDW2IbL4g6wBcsPIHfMcoJ/IvnVQfa2riNHdY8M/HaA9xCG29zAk8QlA2sl7l7hv0JbkKg9gQRxjrOMOGcR5sO9OOcSxn4Dw9+SXYKX0YuAAAAAElFTkSuQmCC"; // UI_IconTalkSmall 40x36 — the actual in-game choice icon
+const ASSET_TRI    = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABW0lEQVR42o2UTU7DQAyF36Sh4e9uLNn2Aqw4BAdACEFhg1QkNl0gLoVYdIOglGSCLflJ1pNaOtKTndjzaWJ7UsYZuIrakMbHsPRdUNsKxNXQ0ncJmKou+hlOcIZOTG1Y+g3BCdKbhlAfsZrB3EDoQdI0LOFI0F/Txq2UbDAVPTFP6MBD05GpC/iEGwP2Y/o2FSlLyaXQMnQBPTEdxzNz+4B+pdIMSZXN08a1OMclTnGBfdYnrvGCK5aEalKHuYol3mCFh3+hK8w9N9eYvAZcOkZL3OEDT1uhHlvinmOmBwxwAuYResUj3vGsTH/nMRm5So6CK4GmDdj1N8wNtEjQhb/zmOdEbi9wtO7IyBDMUaoGusUZvDkw32u/9riLYL15ZZztnOMuNJU55he51nLqMc/xyE3STF6ELTePNkHlJ6RwBTQZLE2uClWwwivhO/9uOmoKVrgkF81Rq5A/8d+5yYVsvskAAAAASUVORK5CYII=";    // UI_TalkClickA 22x17 (triangle)
+const ASSET_TRIB   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACBklEQVR42tWYX2rCQBCHt7EmKmvVxBq1CoK9R//Zp0q9Qm9Sj9JS+17pEXqwdAZ+gWFAZFZFffggzCaZz+zsJKsr3pwzcKGIJHrccF+7BBJWwKVExCOjjE1CJK8SMZEQNZAgVi2lDDJBEjESNwhPNIHnGMZio4xZIiHqSNwiUiIDKWJNnJMYZMwSDeIKSa+JvPh1L8ScjxFLcU7DIBMkkSHpsPhxr8WfWzJ8zDGMZUaZYIkbSryAxDtYcozHQmR2l/hwz8yOMqHTAYlPN6PYLcPHHAudpnCJL/dIsYmEYg+BMoES3+6eYmNipBjzWIhMKRKJZlXXNaElkHSA8R7IERtpGV0zyBEjZyRFKmjNNTSkVBWmlugTXaJDtEEHsb6S0QWcIkcNOStaJMZja6ExDaUEzz+mY4CE7bKtA49YF+eM+RolM8S9W7gmliKRqA0P41ytjicU5IjI8eu9eNklOPYYy3HuhK+V0ySeihe1EkmRcloybtmiT/ASnQqRHtEWRVcFCccw1itFiCnfo5TB6yAT03OqInpq1geYmvXmqTmJYrUv35Vh+a4My9fQ0KTM3baGxudICUtD297iUTOQ2dzi5ZNY21q8XQY1s+GlZ5YI/QxYqNU0ZVTjWhgk9vZhNGNCPozO4lMxqGasNXGo7cTcsp040w3W8becx9+EH/9viVP5o+Yfx2HNdZG2ffIAAAAASUVORK5CYII=";   // UI_TalkClickB 34x34 (diamond frame)
+
+const bubbleImg = new Image(); bubbleImg.src = ASSET_BUBBLE;
+const triImg    = new Image(); triImg.src = ASSET_TRI;
+const triBImg   = new Image(); triBImg.src = ASSET_TRIB;
+
+const canvas = document.getElementById("stage");
+const ctx = canvas.getContext("2d");
+
+const state = {
+  img: null, W: 1280, H: 720,
+  name: "", subtitle: "", text: "",
+  choices: [],
+  showTri: true, scale: 1,
+};
+
+const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+let FONT_BODY = BASE_FONTS; /* switches to the user-loaded font family when one is loaded */
+const GOLD = "#f0c03a"; /* sampled from in-game name text (240,192,58) */
+const TEXT_COL = "#f5f2e9";
+const CHOICE_TEXT = "#f2efe6";
+
+/* ---------- text wrapping (Korean: fall back to per-char when a word overflows) ---------- */
+function wrapText(text, maxWidth) {
+  const out = [];
+  for (const raw of text.split("\n")) {
+    if (!raw) { out.push(""); continue; }
+    let line = "";
+    for (const word of raw.split(" ")) {
+      const cand = line ? line + " " + word : word;
+      if (ctx.measureText(cand).width <= maxWidth) { line = cand; continue; }
+      if (line) { out.push(line); line = ""; }
+      if (ctx.measureText(word).width <= maxWidth) { line = word; continue; }
+      let chunk = "";
+      for (const ch of word) {
+        if (ctx.measureText(chunk + ch).width > maxWidth && chunk) { out.push(chunk); chunk = ""; }
+        chunk += ch;
+      }
+      line = chunk;
+    }
+    out.push(line);
+  }
+  while (out.length && out[out.length - 1] === "") out.pop();
+  return out;
+}
+
+function drawDiamond(x, y, r, color) {
+  ctx.save(); ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+/* divider end ornament, as in game: tiny solid diamond, then a hollow diamond */
+function drawDividerEnd(x, y, base, dir) {
+  const r = Math.max(3, base * 0.0060);
+  ctx.save();
+  ctx.strokeStyle = GOLD; ctx.fillStyle = GOLD;
+  ctx.lineWidth = Math.max(1, base * 0.0020);
+  ctx.beginPath();
+  ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y);
+  ctx.closePath(); ctx.stroke();
+  drawDiamond(x + dir * -(r * 2.1), y, r * 0.42, GOLD);
+  ctx.restore();
+}
+
+/* divider: ·◇────────◇· ; if a subtitle is given, the line splits around it */
+function drawDivider(cx, y, width, base, subtitle, subFS) {
+  const r = Math.max(3, base * 0.0060);
+  const th = Math.max(1, base * 0.0020);
+  ctx.save();
+  ctx.fillStyle = GOLD; ctx.strokeStyle = GOLD; ctx.lineWidth = th;
+  ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
+  const x0 = cx - width / 2, x1 = cx + width / 2;
+  if (subtitle) {
+    ctx.font = `600 ${subFS}px ${FONT_BODY}`;
+    const half = ctx.measureText(subtitle).width / 2 + subFS * 0.8;
+    ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(cx - half, y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + half, y); ctx.lineTo(x1 - r, y); ctx.stroke();
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(subtitle, cx, y);
+  } else {
+    ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(x1 - r, y); ctx.stroke();
+  }
+  drawDividerEnd(x0, y, base, 1);
+  drawDividerEnd(x1, y, base, -1);
+  ctx.restore();
+}
+
+function drawBubbleIcon(x, y, h) {
+  /* UI_IconTalkSmall (40x36): white bubble, dots are transparent cutouts
+     so the pill background shows through them, exactly like in game */
+  const w = h * (40 / 36);
+  ctx.drawImage(bubbleImg, x, y, w, h);
+  return w;
+}
+
+function render() {
+  const { W, H } = state;
+  canvas.width = W; canvas.height = H;
+
+  /* background */
+  if (state.img) {
+    ctx.drawImage(state.img, 0, 0, W, H);
+  } else {
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, "#2a3547"); g.addColorStop(.6, "#1a2230"); g.addColorStop(1, "#11151d");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.fillStyle = "rgba(236,229,216,.28)";
+    ctx.font = `500 ${Math.round(Math.min(W,H)*0.032)}px ${FONT_BODY}`;
+    ctx.textAlign = "center";
+    ctx.fillText("이미지를 업로드하면 여기에 표시됩니다", W/2, H*0.38);
+    ctx.restore();
+  }
+
+  const base = Math.min(W, H) * state.scale;
+  const portrait = H >= W;
+  const cx = W / 2;
+
+  /* ratios measured pixel-by-pixel on a 1920x1080 in-game screenshot:
+     name em top y800 (0.741H), divider y853 spanning x435-1484 (0.546W),
+     text em top y867, choice pill left x1193 (38% width), pill height 71px,
+     choice text ~33px, indicator (diamond+triangle) centered at 0.966H */
+  const nameFS   = base * 0.038;
+  const subFS    = base * 0.022;
+  const textFS   = base * 0.036;
+  const choiceFS = base * 0.030;
+  const lineH    = textFS * 1.45;
+
+  /* ----- dialogue block: name fixed at the in-game anchor (0.79H), text flows
+     downward; the block only shifts up when >2 lines would collide with the
+     bottom indicator. Max 5 wrapped lines. ----- */
+  const hasDialog = state.text.trim() || state.name.trim();
+  let textLines = [];
+  let blockTop = H - H * 0.055;           /* top of dialogue block, for band + choices */
+  /* vertical anchors are fixed distances from the BOTTOM edge, scaled like the
+     text itself (base = min(W,H)), so the box sits the same number of pixels
+     above the bottom on any image size or aspect ratio.
+     In-game 1080p reference: name top 280px above bottom; nudged slightly lower. */
+  const NAME_TOP = H - base * 0.235;
+  const TEXT_TOP_NONAME = H - base * 0.175;
+  const MAX_TEXT_BOTTOM = H - base * 0.055; /* keep clear of the bottom indicator */
+
+  if (hasDialog) {
+    ctx.font = `500 ${textFS}px ${FONT_BODY}`;
+    textLines = state.text.trim() ? wrapText(state.text.trim(), W * 0.82) : [];
+    if (textLines.length > 5) {           /* hard cap at 5 lines, ellipsize the last */
+      textLines = textLines.slice(0, 5);
+      textLines[4] = textLines[4].replace(/.$/, "") + "…";
+    }
+    const n = Math.max(textLines.length, 1);
+    const subH = state.subtitle.trim() ? subFS * 0.85 + subFS * 0.75 : 0;
+    const headH = state.name.trim() ? nameFS * 1.30 + subH + textFS * 0.38 : 0;
+    const textTop = state.name.trim() ? NAME_TOP + headH : TEXT_TOP_NONAME;
+    const overflow = Math.max(0, textTop + n * lineH - MAX_TEXT_BOTTOM);
+    blockTop = (state.name.trim() ? NAME_TOP : textTop) - overflow;
+  }
+
+  /* ----- dialogue darkening, always on. Measured on the in-game 1080p shot:
+     the strip above the name stays bright (~140 luminance) and everything from
+     just above the name down to the bottom edge holds dark (~65-76). ----- */
+  if (hasDialog) {
+    const y0 = blockTop - base * 0.045;
+    const g = ctx.createLinearGradient(0, y0, 0, H);
+    g.addColorStop(0, "rgba(10,12,16,0)");
+    g.addColorStop(.28, "rgba(10,12,16,.34)");
+    g.addColorStop(.62, "rgba(10,12,16,.38)");
+    g.addColorStop(1, "rgba(10,12,16,.32)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, y0, W, H - y0);
+  }
+
+  /* ----- dialogue ----- */
+  if (hasDialog) {
+    let y = blockTop;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.shadowColor = "rgba(0,0,0,.65)"; ctx.shadowBlur = base * 0.010; ctx.shadowOffsetY = base * 0.0025;
+
+    if (state.name.trim()) {
+      ctx.fillStyle = GOLD;
+      ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
+      ctx.textBaseline = "top";
+      ctx.fillText(state.name.trim(), cx, y);
+      y += nameFS * 1.30 + (state.subtitle.trim() ? subFS * 0.85 : 0);
+      const divW = portrait ? W * 0.80 : W * 0.52;
+      ctx.shadowBlur = 0;
+      drawDivider(cx, y, divW, base, state.subtitle.trim(), subFS);
+      ctx.shadowBlur = base * 0.010;
+      y += state.subtitle.trim() ? subFS * 0.75 + textFS * 0.38 : textFS * 0.38;
+    }
+
+    ctx.fillStyle = TEXT_COL;
+    ctx.font = `500 ${textFS}px ${FONT_BODY}`;
+    ctx.textBaseline = "top";
+    for (const line of textLines) { ctx.fillText(line, cx, y); y += lineH; }
+    ctx.restore();
+
+    /* continue indicator: diamond frame + triangle, bottom-center like in game */
+    if (state.showTri && triImg.complete && triBImg.complete) {
+      const s = base * 0.030;
+      const cyI = H - base * 0.034;
+      ctx.drawImage(triBImg, cx - s / 2, cyI - s / 2, s, s);
+      const tw = s * 0.52, th = tw * (17 / 22);
+      ctx.drawImage(triImg, cx - tw / 2, cyI - th * 0.40, tw, th);
+    }
+  }
+
+  /* ----- choices: uniform-width pills flush to the right edge, stacked bottom-up ----- */
+  const items = state.choices.map(s => s.trim()).filter(Boolean);
+  if (items.length && bubbleImg.complete) {
+    /* in-game 1080p measurements: pill left x1193 (38% of width), 1-line pill
+       h71, icon 48x40 inset 20px, text starts +16 after icon, pill gap 18,
+       stack sits 22px above the name row */
+    const pillW = W * 0.38;
+    const iconH = choiceFS * 1.21, iconW = iconH * (40 / 36);
+    const padV = choiceFS * 0.38, padL = choiceFS * 0.60, gapI = choiceFS * 0.48;
+    const padR = choiceFS * 0.8;
+    const gap = choiceFS * 0.55;
+    const clineH = choiceFS * 1.40;
+    const maxTextW = pillW - padL - iconW - gapI - padR;
+
+    ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
+    const measured = items.map(t => {
+      const lines = wrapText(t, maxTextW);
+      return { lines, h: Math.max(clineH + padV * 0.6, lines.length * clineH) + padV * 2 };
+    });
+
+    let yBottom = blockTop - base * 0.020;
+    for (let i = measured.length - 1; i >= 0; i--) {
+      const m = measured[i];
+      const h = m.h, top = yBottom - h, r = h / 2;
+      const x0 = W - pillW;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x0 + r, top);
+      ctx.lineTo(W + 2, top);
+      ctx.lineTo(W + 2, top + h);
+      ctx.lineTo(x0 + r, top + h);
+      ctx.arc(x0 + r, top + r, r, Math.PI / 2, Math.PI * 1.5);
+      ctx.closePath();
+      /* fill/outline fade measured on the in-game shot: near-opaque navy behind
+         the icon/text, dissolving to almost nothing by ~70% of the pill width */
+      const fillG = ctx.createLinearGradient(x0, 0, W, 0);
+      fillG.addColorStop(0, "rgba(40,48,66,.80)");
+      fillG.addColorStop(.30, "rgba(40,48,66,.62)");
+      fillG.addColorStop(.55, "rgba(40,48,66,.30)");
+      fillG.addColorStop(.78, "rgba(40,48,66,.07)");
+      fillG.addColorStop(1, "rgba(40,48,66,.03)");
+      ctx.fillStyle = fillG;
+      ctx.fill();
+      const strokeG = ctx.createLinearGradient(x0, 0, W, 0);
+      strokeG.addColorStop(0, "rgba(205,210,203,.50)");
+      strokeG.addColorStop(.45, "rgba(205,210,203,.28)");
+      strokeG.addColorStop(.72, "rgba(205,210,203,0)");
+      ctx.strokeStyle = strokeG;
+      ctx.lineWidth = Math.max(1, base * 0.0018);
+      ctx.stroke();
+
+      drawBubbleIcon(x0 + padL, top + (h - iconH) / 2, iconH);
+
+      ctx.fillStyle = CHOICE_TEXT;
+      ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base * 0.004;
+      const tx = x0 + padL + iconW + gapI;
+      const ty0 = top + h / 2 - (m.lines.length - 1) * clineH / 2;
+      m.lines.forEach((l, j) => ctx.fillText(l, tx, ty0 + j * clineH));
+      ctx.restore();
+
+      yBottom = top - gap;
+    }
+  }
+}
+
+/* ---------- UI wiring ---------- */
+const $ = id => document.getElementById(id);
+
+$("fileBtn").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    state.img = img; state.W = img.naturalWidth; state.H = img.naturalHeight;
+    const portrait = state.H >= state.W;
+    $("dims").textContent = `${state.W} × ${state.H} · ${portrait ? "세로형" : "가로형"} 자동 배치`;
+    $("clearImg").hidden = false;
+    URL.revokeObjectURL(url);
+    render();
+  };
+  img.src = url;
+});
+$("clearImg").addEventListener("click", () => {
+  state.img = null; state.W = 1280; state.H = 720;
+  $("file").value = "";
+  $("dims").textContent = "아직 업로드 안 됨 — 기본 캔버스 1280×720";
+  $("clearImg").hidden = true;
+  render();
+});
+
+for (const id of ["name", "subtitle", "text"]) {
+  $(id).addEventListener("input", () => { state[id] = $(id).value; render(); });
+  state[id] = $(id).value;
+}
+$("showTri").addEventListener("change", () => { state.showTri = $("showTri").checked; render(); });
+$("scale").addEventListener("input", () => {
+  state.scale = parseFloat($("scale").value);
+  $("scaleVal").textContent = state.scale.toFixed(2);
+  render();
+});
+
+/* font file loading */
+let userFontFace = null;
+$("fontBtn").addEventListener("click", () => $("fontFile").click());
+$("fontFile").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const face = new FontFace("GenshinUserFont", await f.arrayBuffer());
+    await face.load();
+    if (userFontFace) document.fonts.delete(userFontFace);
+    document.fonts.add(face);
+    userFontFace = face;
+    FONT_BODY = '"GenshinUserFont",' + BASE_FONTS;
+    $("fontStatus").textContent = "사용 중: " + f.name;
+    $("fontReset").hidden = false;
+    render();
+  } catch (err) {
+    $("fontStatus").textContent = "폰트를 읽지 못했어요: " + f.name;
+  }
+});
+$("fontReset").addEventListener("click", () => {
+  if (userFontFace) { document.fonts.delete(userFontFace); userFontFace = null; }
+  FONT_BODY = BASE_FONTS;
+  $("fontFile").value = "";
+  $("fontStatus").textContent = "기본: Noto Sans KR (근사)";
+  $("fontReset").hidden = true;
+  render();
+});
+
+/* choices list */
+function syncChoices() {
+  state.choices = [...document.querySelectorAll("#choices input")].map(i => i.value);
+  render();
+}
+function addChoiceRow(value) {
+  const row = document.createElement("div");
+  row.className = "choice-row";
+  const input = document.createElement("input");
+  input.type = "text"; input.placeholder = "선택지 내용"; input.value = value || "";
+  input.addEventListener("input", syncChoices);
+  const del = document.createElement("button");
+  del.type = "button"; del.textContent = "✕"; del.setAttribute("aria-label", "선택지 삭제");
+  del.addEventListener("click", () => { row.remove(); syncChoices(); });
+  row.append(input, del);
+  $("choices").append(row);
+}
+$("addChoice").addEventListener("click", () => { addChoiceRow(""); syncChoices(); });
+addChoiceRow("'폭풍의 신'…?");
+addChoiceRow("잠깐, 방금 '자기 신전'이라고 말한 거야?");
+syncChoices();
+
+/* save */
+$("save").addEventListener("click", () => {
+  canvas.toBlob(blob => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "genshin_dialog.png";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }, "image/png");
+});
+
+/* first paint: after fonts & assets */
+Promise.all([
+  document.fonts ? document.fonts.load(`700 20px "Noto Sans KR"`).catch(() => {}) : Promise.resolve(),
+  new Promise(res => bubbleImg.complete ? res() : bubbleImg.addEventListener("load", res)),
+  new Promise(res => triImg.complete ? res() : triImg.addEventListener("load", res)),
+]).then(render);
+render();
+</script>
+</body>
+</html>
