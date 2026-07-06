@@ -143,7 +143,7 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <button id="addChoice" style="margin-top:8px">+ 선택지 추가</button>
       <div class="row" style="margin-top:10px">
         <input type="checkbox" id="choiceYellow">
-        <label for="choiceYellow">선택 표시(●)된 선택지 노란색 (클릭 효과)</label>
+        <label for="choiceYellow">선택 표시(●)된 선택지 노란 배경 (클릭 효과)</label>
       </div>
       <p class="hint">비워두면 선택지는 표시되지 않아요. 화면 오른쪽 끝에 인게임처럼 밀착됩니다.</p>
     </fieldset>
@@ -425,16 +425,18 @@ function render() {
       /* fill/outline fade measured on the in-game shot: near-opaque navy behind
          the icon/text, dissolving to almost nothing by ~70% of the pill width */
       /* fill holds dark through the text zone; the fade is concentrated in the
-         tail so the choice text stays clearly readable, as in game */
+         tail so the choice text stays clearly readable, as in game.
+         A tapped choice swaps the navy for the measured in-game gold. */
+      const selected = i === state.selectedChoice;
+      const fc = (selected && state.choiceYellow) ? "196,158,66" : "40,48,66";
       const fillG = ctx.createLinearGradient(x0, 0, W, 0);
-      fillG.addColorStop(0, "rgba(40,48,66,.80)");
-      fillG.addColorStop(.50, "rgba(40,48,66,.74)");
-      fillG.addColorStop(.72, "rgba(40,48,66,.45)");
-      fillG.addColorStop(.88, "rgba(40,48,66,.12)");
-      fillG.addColorStop(1, "rgba(40,48,66,.03)");
+      fillG.addColorStop(0, `rgba(${fc},.80)`);
+      fillG.addColorStop(.50, `rgba(${fc},.74)`);
+      fillG.addColorStop(.72, `rgba(${fc},.45)`);
+      fillG.addColorStop(.88, `rgba(${fc},.12)`);
+      fillG.addColorStop(1, `rgba(${fc},.03)`);
       ctx.fillStyle = fillG;
       ctx.fill();
-      const selected = i === state.selectedChoice;
       const strokeG = ctx.createLinearGradient(x0, 0, W, 0);
       if (selected) {
         /* in-game selection: bright white outline, still fading toward the tail */
@@ -452,7 +454,7 @@ function render() {
 
       drawBubbleIcon(x0 + padL, top + (h - iconH) / 2, iconH);
 
-      ctx.fillStyle = (selected && state.choiceYellow) ? "#ffd76a" : CHOICE_TEXT;
+      ctx.fillStyle = CHOICE_TEXT;
       ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base * 0.004;
