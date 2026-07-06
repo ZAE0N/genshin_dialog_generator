@@ -75,6 +75,9 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 .choice-row { display:flex; gap:6px; margin-top:6px; }
 .choice-row input { flex:1; }
 .choice-row button { flex:none; padding:6px 10px; }
+.choice-row .sel { padding:6px 9px; color:var(--ink-dim); }
+.choice-row.selected .sel { color:#fff; border-color:#fff; }
+.choice-row.selected input { border-color:rgba(255,255,255,.65); }
 .hint { font-size:11.5px; color:var(--ink-dim); line-height:1.5; margin:6px 0 0; }
 #dims { font-size:11.5px; color:var(--ink-dim); }
 #fileBtn { width:100%; }
@@ -127,6 +130,8 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <div class="row" style="margin-top:10px">
         <input type="checkbox" id="showTri" checked>
         <label for="showTri">진행 표시 ▾</label>
+        <span style="flex:1"></span>
+        <button id="clearDialog" type="button">대사 전체 지우기</button>
       </div>
     </fieldset>
 
@@ -181,7 +186,7 @@ const state = {
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
   choices: [],
-  showTri: true, scale: 1,
+  showTri: true, scale: 1, selectedChoice: -1,
 };
 
 const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
@@ -413,20 +418,30 @@ function render() {
       ctx.closePath();
       /* fill/outline fade measured on the in-game shot: near-opaque navy behind
          the icon/text, dissolving to almost nothing by ~70% of the pill width */
+      /* fill holds dark through the text zone; the fade is concentrated in the
+         tail so the choice text stays clearly readable, as in game */
       const fillG = ctx.createLinearGradient(x0, 0, W, 0);
       fillG.addColorStop(0, "rgba(40,48,66,.80)");
-      fillG.addColorStop(.30, "rgba(40,48,66,.62)");
-      fillG.addColorStop(.55, "rgba(40,48,66,.30)");
-      fillG.addColorStop(.78, "rgba(40,48,66,.07)");
+      fillG.addColorStop(.50, "rgba(40,48,66,.74)");
+      fillG.addColorStop(.72, "rgba(40,48,66,.45)");
+      fillG.addColorStop(.88, "rgba(40,48,66,.12)");
       fillG.addColorStop(1, "rgba(40,48,66,.03)");
       ctx.fillStyle = fillG;
       ctx.fill();
+      const selected = i === state.selectedChoice;
       const strokeG = ctx.createLinearGradient(x0, 0, W, 0);
-      strokeG.addColorStop(0, "rgba(205,210,203,.50)");
-      strokeG.addColorStop(.45, "rgba(205,210,203,.28)");
-      strokeG.addColorStop(.72, "rgba(205,210,203,0)");
+      if (selected) {
+        /* in-game selection: bright white outline, still fading toward the tail */
+        strokeG.addColorStop(0, "rgba(255,255,255,.95)");
+        strokeG.addColorStop(.55, "rgba(255,255,255,.60)");
+        strokeG.addColorStop(.88, "rgba(255,255,255,0)");
+      } else {
+        strokeG.addColorStop(0, "rgba(205,210,203,.50)");
+        strokeG.addColorStop(.50, "rgba(205,210,203,.30)");
+        strokeG.addColorStop(.82, "rgba(205,210,203,0)");
+      }
       ctx.strokeStyle = strokeG;
-      ctx.lineWidth = Math.max(1, base * 0.0018);
+      ctx.lineWidth = Math.max(1, base * (selected ? 0.0030 : 0.0018));
       ctx.stroke();
 
       drawBubbleIcon(x0 + padL, top + (h - iconH) / 2, iconH);
@@ -512,21 +527,40 @@ $("fontReset").addEventListener("click", () => {
   render();
 });
 
+$("clearDialog").addEventListener("click", () => {
+  for (const id of ["name", "subtitle", "text"]) { $(id).value = ""; state[id] = ""; }
+  render();
+});
+
 /* choices list */
 function syncChoices() {
-  state.choices = [...document.querySelectorAll("#choices input")].map(i => i.value);
+  const rows = [...document.querySelectorAll("#choices .choice-row")];
+  state.choices = rows.map(r => r.querySelector("input").value);
+  state.selectedChoice = rows.findIndex(r => r.classList.contains("selected"));
   render();
 }
 function addChoiceRow(value) {
   const row = document.createElement("div");
   row.className = "choice-row";
+  const sel = document.createElement("button");
+  sel.type = "button"; sel.className = "sel"; sel.textContent = "○";
+  sel.title = "선택된 상태로 표시 (흰 테두리)"; sel.setAttribute("aria-label", "선택 표시");
+  sel.addEventListener("click", () => {
+    const was = row.classList.contains("selected");
+    document.querySelectorAll("#choices .choice-row").forEach(r => {
+      r.classList.remove("selected");
+      r.querySelector(".sel").textContent = "○";
+    });
+    if (!was) { row.classList.add("selected"); sel.textContent = "●"; }
+    syncChoices();
+  });
   const input = document.createElement("input");
   input.type = "text"; input.placeholder = "선택지 내용"; input.value = value || "";
   input.addEventListener("input", syncChoices);
   const del = document.createElement("button");
   del.type = "button"; del.textContent = "✕"; del.setAttribute("aria-label", "선택지 삭제");
   del.addEventListener("click", () => { row.remove(); syncChoices(); });
-  row.append(input, del);
+  row.append(sel, input, del);
   $("choices").append(row);
 }
 $("addChoice").addEventListener("click", () => { addChoiceRow(""); syncChoices(); });
