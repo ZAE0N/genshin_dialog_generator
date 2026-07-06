@@ -70,9 +70,19 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 #dims { font-size:11.5px; color:var(--ink-dim); }
 #fileBtn { width:100%; }
 @media (max-width:760px) {
+  body { height:auto; min-height:100%; }
   main { flex-direction:column; }
-  #panel { width:100%; border-left:none; border-top:1px solid var(--line); }
-  #previewWrap { min-height:44vh; }
+  header { padding:10px 14px; }
+  header .sub { display:none; }
+  #previewWrap { min-height:0; padding:12px; }
+  #stage { max-height:52vh; width:auto; }
+  #panel { width:100%; border-left:none; border-top:1px solid var(--line); padding:14px 14px 28px; }
+  /* touch-friendly: bigger targets, 16px inputs so iOS doesn't zoom on focus */
+  input[type=text], textarea { font-size:16px; padding:10px 12px; }
+  button { padding:11px 14px; font-size:15px; }
+  .choice-row button { padding:10px 14px; }
+  input[type=checkbox] { width:19px; height:19px; }
+  label { font-size:13px; }
 }
 </style>
 </head>
@@ -117,6 +127,18 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
     </fieldset>
 
     <fieldset>
+      <legend>폰트</legend>
+      <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" hidden>
+      <button id="fontBtn">폰트 파일 불러오기…</button>
+      <div class="row" style="margin-top:8px">
+        <p id="fontStatus" class="hint" style="margin:0;flex:1">기본: Noto Sans KR (근사)</p>
+        <button id="fontReset" hidden>초기화</button>
+      </div>
+      <p class="hint">.ttf / .otf / .woff / .woff2 파일을 선택하면 그 폰트로 렌더링됩니다.
+      폰트는 내 브라우저에서만 사용되고 어디에도 업로드되지 않아요.</p>
+    </fieldset>
+
+    <fieldset>
       <legend>크기 조정</legend>
       <div class="row">
         <label for="scale" style="width:70px">전체 크기</label>
@@ -151,7 +173,8 @@ const state = {
   showTri: true, showBand: false, scale: 1,
 };
 
-const FONT_BODY = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+let FONT_BODY = BASE_FONTS; /* switches to the user-loaded font family when one is loaded */
 const GOLD = "#f0c03a"; /* sampled from in-game name text (240,192,58) */
 const TEXT_COL = "#f5f2e9";
 const CHOICE_TEXT = "#f2efe6";
@@ -393,6 +416,35 @@ $("showBand").addEventListener("change", () => { state.showBand = $("showBand").
 $("scale").addEventListener("input", () => {
   state.scale = parseFloat($("scale").value);
   $("scaleVal").textContent = state.scale.toFixed(2);
+  render();
+});
+
+/* font file loading */
+let userFontFace = null;
+$("fontBtn").addEventListener("click", () => $("fontFile").click());
+$("fontFile").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const face = new FontFace("GenshinUserFont", await f.arrayBuffer());
+    await face.load();
+    if (userFontFace) document.fonts.delete(userFontFace);
+    document.fonts.add(face);
+    userFontFace = face;
+    FONT_BODY = '"GenshinUserFont",' + BASE_FONTS;
+    $("fontStatus").textContent = "사용 중: " + f.name;
+    $("fontReset").hidden = false;
+    render();
+  } catch (err) {
+    $("fontStatus").textContent = "폰트를 읽지 못했어요: " + f.name;
+  }
+});
+$("fontReset").addEventListener("click", () => {
+  if (userFontFace) { document.fonts.delete(userFontFace); userFontFace = null; }
+  FONT_BODY = BASE_FONTS;
+  $("fontFile").value = "";
+  $("fontStatus").textContent = "기본: Noto Sans KR (근사)";
+  $("fontReset").hidden = true;
   render();
 });
 
