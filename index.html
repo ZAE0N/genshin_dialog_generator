@@ -33,7 +33,16 @@ main { flex:1; display:flex; min-height:0; }
   padding:18px; overflow:auto; background:
     repeating-conic-gradient(#191c23 0% 25%, #15181e 0% 50%) 0 0/22px 22px;
 }
+#stageWrap { position:relative; max-width:100%; max-height:100%; display:flex; }
 #stage { max-width:100%; max-height:100%; box-shadow:0 20px 50px -20px rgba(0,0,0,.7); border-radius:4px; }
+#clearImg {
+  position:absolute; top:8px; right:8px; width:32px; height:32px; padding:0;
+  border-radius:50%; background:rgba(14,16,20,.72); color:#ece5d8;
+  border:1px solid rgba(236,229,216,.4); font-size:15px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+}
+#clearImg:hover { background:rgba(180,60,50,.85); border-color:transparent; color:#fff; }
+#clearImg[hidden] { display:none; }
 /* ---------- controls ---------- */
 #panel {
   width:330px; flex:none; border-left:1px solid var(--line); background:var(--panel);
@@ -92,7 +101,12 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
   <span class="sub">이미지를 올리면 크기에 맞춰 대화창·선택지가 자동 배치됩니다</span>
 </header>
 <main>
-  <div id="previewWrap"><canvas id="stage" width="1280" height="720"></canvas></div>
+  <div id="previewWrap">
+    <div id="stageWrap">
+      <canvas id="stage" width="1280" height="720"></canvas>
+      <button id="clearImg" hidden aria-label="업로드한 이미지 지우기" title="이미지 지우기">✕</button>
+    </div>
+  </div>
 
   <div id="panel">
     <fieldset>
@@ -105,7 +119,7 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
     <fieldset>
       <legend>대화창</legend>
       <label for="name">이름</label>
-      <input type="text" id="name" placeholder="예: 파이몬" value="파이몬">
+      <input type="text" id="name" placeholder="예: 페이몬" value="페이몬">
       <label for="subtitle">부제 (선택)</label>
       <input type="text" id="subtitle" placeholder="예: 최고의 동료">
       <label for="text">대사</label>
@@ -114,8 +128,8 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
         <input type="checkbox" id="showTri" checked>
         <label for="showTri">진행 표시 ▾</label>
         <span style="width:12px"></span>
-        <input type="checkbox" id="showBand">
-        <label for="showBand">하단 어둡게 (인게임엔 없음)</label>
+        <input type="checkbox" id="showBand" checked>
+        <label for="showBand">대사 주변 어둡게</label>
       </div>
     </fieldset>
 
@@ -170,7 +184,7 @@ const state = {
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
   choices: [],
-  showTri: true, showBand: false, scale: 1,
+  showTri: true, showBand: true, scale: 1,
 };
 
 const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
@@ -278,25 +292,42 @@ function render() {
   const choiceFS = base * 0.024;
   const lineH    = textFS * 1.45;
 
-  /* ----- dialogue block: name anchored at fixed height, text flows below ----- */
+  /* ----- dialogue block: bottom-anchored, grows upward with line count (max 5) ----- */
   const hasDialog = state.text.trim() || state.name.trim();
   let textLines = [];
   let blockTop = H - H * 0.055;           /* top of dialogue block, for band + choices */
+  let textTop = blockTop;
+  const blockBottom = H * 0.887;          /* text bottom = in-game single-line position */
 
   if (hasDialog) {
     ctx.font = `500 ${textFS}px ${FONT_BODY}`;
     textLines = state.text.trim() ? wrapText(state.text.trim(), W * 0.82) : [];
-    blockTop = state.name.trim() ? H * 0.790 : H * 0.815;
+    if (textLines.length > 5) {           /* hard cap at 5 lines, ellipsize the last */
+      textLines = textLines.slice(0, 5);
+      textLines[4] = textLines[4].replace(/.$/, "") + "…";
+    }
+    textTop = blockBottom - Math.max(textLines.length, 1) * lineH;
+    if (state.name.trim()) {
+      const subH = state.subtitle.trim() ? subFS * 0.85 + subFS * 0.75 : 0;
+      blockTop = textTop - textFS * 0.38 - subH - nameFS * 1.12;
+    } else {
+      blockTop = textTop;
+    }
   }
 
-  /* ----- darkening band ----- */
+  /* ----- soft dark band around the dialogue zone.
+     Measured on the in-game KR shot: ~30% darker at the name/text rows,
+     fading to nothing above the name and before the bottom indicator. ----- */
   if (state.showBand && hasDialog) {
-    const g = ctx.createLinearGradient(0, blockTop - base * 0.10, 0, H);
+    const y0 = blockTop - base * 0.055;
+    const y1 = Math.min(H, blockBottom + base * 0.055);
+    const g = ctx.createLinearGradient(0, y0, 0, y1);
     g.addColorStop(0, "rgba(10,12,16,0)");
-    g.addColorStop(.45, "rgba(10,12,16,.38)");
-    g.addColorStop(1, "rgba(10,12,16,.55)");
+    g.addColorStop(.42, "rgba(10,12,16,.30)");
+    g.addColorStop(.72, "rgba(10,12,16,.30)");
+    g.addColorStop(1, "rgba(10,12,16,0)");
     ctx.fillStyle = g;
-    ctx.fillRect(0, blockTop - base * 0.10, W, H - blockTop + base * 0.10);
+    ctx.fillRect(0, y0, W, y1 - y0);
   }
 
   /* ----- dialogue ----- */
@@ -338,7 +369,10 @@ function render() {
   /* ----- choices: uniform-width pills flush to the right edge, stacked bottom-up ----- */
   const items = state.choices.map(s => s.trim()).filter(Boolean);
   if (items.length && bubbleImg.complete) {
-    const pillW = portrait ? W * 0.78 : W * 0.42;   /* same width for every pill, like in game */
+    /* uniform width for every pill; fraction follows the aspect ratio continuously
+       (16:9 → 0.42, 832x1216 → 0.78, interpolated between) */
+    const ar = W / H;
+    const pillW = W * Math.min(0.85, Math.max(0.40, 0.42 + (1.78 - ar) * 0.328));
     const icon = choiceFS * 1.45;
     const padV = choiceFS * 0.40, padL = choiceFS * 0.38, gapI = choiceFS * 0.42;
     const padR = choiceFS * 0.8;
@@ -366,9 +400,18 @@ function render() {
       ctx.lineTo(x0 + r, top + h);
       ctx.arc(x0 + r, top + r, r, Math.PI / 2, Math.PI * 1.5);
       ctx.closePath();
-      ctx.fillStyle = "rgba(18,22,30,.55)";
+      /* fill and outline fade toward the right edge, as in the reference template */
+      const fillG = ctx.createLinearGradient(x0, 0, W, 0);
+      fillG.addColorStop(0, "rgba(18,22,30,.58)");
+      fillG.addColorStop(.7, "rgba(18,22,30,.42)");
+      fillG.addColorStop(1, "rgba(18,22,30,.18)");
+      ctx.fillStyle = fillG;
       ctx.fill();
-      ctx.strokeStyle = "rgba(240,238,229,.55)";
+      const strokeG = ctx.createLinearGradient(x0, 0, W, 0);
+      strokeG.addColorStop(0, "rgba(240,238,229,.55)");
+      strokeG.addColorStop(.75, "rgba(240,238,229,.30)");
+      strokeG.addColorStop(1, "rgba(240,238,229,0)");
+      ctx.strokeStyle = strokeG;
       ctx.lineWidth = Math.max(1, base * 0.0016);
       ctx.stroke();
 
@@ -401,10 +444,18 @@ $("file").addEventListener("change", e => {
     state.img = img; state.W = img.naturalWidth; state.H = img.naturalHeight;
     const portrait = state.H >= state.W;
     $("dims").textContent = `${state.W} × ${state.H} · ${portrait ? "세로형" : "가로형"} 자동 배치`;
+    $("clearImg").hidden = false;
     URL.revokeObjectURL(url);
     render();
   };
   img.src = url;
+});
+$("clearImg").addEventListener("click", () => {
+  state.img = null; state.W = 1280; state.H = 720;
+  $("file").value = "";
+  $("dims").textContent = "아직 업로드 안 됨 — 기본 캔버스 1280×720";
+  $("clearImg").hidden = true;
+  render();
 });
 
 for (const id of ["name", "subtitle", "text"]) {
