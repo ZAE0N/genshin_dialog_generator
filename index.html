@@ -166,7 +166,7 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 <script>
 "use strict";
 /* ---------- embedded Genshin UI assets (extracted from PathOfGenshin/resources) ---------- */
-const ASSET_BUBBLE = "data:image/png;base64,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"; // UI_Frame_TalkBubble_Left 99x84
+const ASSET_BUBBLE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAkCAYAAAD7PHgWAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACZElEQVR42t3YsW7TQBjA8VNAiNHKngGpBTGBhCsh1AkID0AeojxCQBVr2BhTXqCLGREC+Q1clIWKtolYEAEJJc7UhcHhf9Kn6HQ6n11kJ26H39DY9/kvxXEuVbPpmSrl16nX/5/vp65iYIjBfHoWYYIFljPLHFhggkivQVhX4E2G9pAgRSYBwhFo0WuQIkFPzywb6H5Lfq70kMymp8tKSSiUQ6nAAENkWg2BmRgiuGhgh6gYWd2BIkGnbGAHIwlbS6AYoQMr0KhGgASFQTUFJwh8gQNkmwoUg7zAENmmA0VoB15D1KDAyA58yB/nWApZ4ME5Ju/xi887X/z+totV4Gs50IxAELdvBn70DBwiRBdHnoAYOyL2zDtCFyGGnsDPZuBxzsAYSrSwjdQx8CuvtdESbf2aY14qM1pQIs4JPDEDf9g3rXzB9x3fzQnst+gQynJobhb0GiRQMM/r6+P29e3AY1cgYo4FRmCI1BE4xhaU2GLtxBGYIjQCA32NMoEfXIEi4vhThu5hjEwCbQl6ItFr7UAxxp6eqWdj6Qq078G+J9C+gAT6+ddbx92B+1htFu4zdNGgB3VK9L25tZt516DAAx1nB95tUOAdV+ANvGpA4EtcdwUqEcN1E1cp70dVXGZHHSDeQGCMoCjQfIC+X2NgZMQVB4oWC9+sIXDg/9lZ/K+LXXwqehAXba8cH4o/eJxz/VKBti4ipBUGqioDW2IbL4g6wBcsPIHfMcoJ/IvnVQfa2riNHdY8M/HaA9xCG29zAk8QlA2sl7l7hv0JbkKg9gQRxjrOMOGcR5sO9OOcSxn4Dw9+SXYKX0YuAAAAAElFTkSuQmCC"; // UI_IconTalkSmall 40x36 — the actual in-game choice icon
 const ASSET_TRI    = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABW0lEQVR42o2UTU7DQAyF36Sh4e9uLNn2Aqw4BAdACEFhg1QkNl0gLoVYdIOglGSCLflJ1pNaOtKTndjzaWJ7UsYZuIrakMbHsPRdUNsKxNXQ0ncJmKou+hlOcIZOTG1Y+g3BCdKbhlAfsZrB3EDoQdI0LOFI0F/Txq2UbDAVPTFP6MBD05GpC/iEGwP2Y/o2FSlLyaXQMnQBPTEdxzNz+4B+pdIMSZXN08a1OMclTnGBfdYnrvGCK5aEalKHuYol3mCFh3+hK8w9N9eYvAZcOkZL3OEDT1uhHlvinmOmBwxwAuYResUj3vGsTH/nMRm5So6CK4GmDdj1N8wNtEjQhb/zmOdEbi9wtO7IyBDMUaoGusUZvDkw32u/9riLYL15ZZztnOMuNJU55he51nLqMc/xyE3STF6ELTePNkHlJ6RwBTQZLE2uClWwwivhO/9uOmoKVrgkF81Rq5A/8d+5yYVsvskAAAAASUVORK5CYII=";    // UI_TalkClickA 22x17 (triangle)
 const ASSET_TRIB   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACBklEQVR42tWYX2rCQBCHt7EmKmvVxBq1CoK9R//Zp0q9Qm9Sj9JS+17pEXqwdAZ+gWFAZFZFffggzCaZz+zsJKsr3pwzcKGIJHrccF+7BBJWwKVExCOjjE1CJK8SMZEQNZAgVi2lDDJBEjESNwhPNIHnGMZio4xZIiHqSNwiUiIDKWJNnJMYZMwSDeIKSa+JvPh1L8ScjxFLcU7DIBMkkSHpsPhxr8WfWzJ8zDGMZUaZYIkbSryAxDtYcozHQmR2l/hwz8yOMqHTAYlPN6PYLcPHHAudpnCJL/dIsYmEYg+BMoES3+6eYmNipBjzWIhMKRKJZlXXNaElkHSA8R7IERtpGV0zyBEjZyRFKmjNNTSkVBWmlugTXaJDtEEHsb6S0QWcIkcNOStaJMZja6ExDaUEzz+mY4CE7bKtA49YF+eM+RolM8S9W7gmliKRqA0P41ytjicU5IjI8eu9eNklOPYYy3HuhK+V0ySeihe1EkmRcloybtmiT/ASnQqRHtEWRVcFCccw1itFiCnfo5TB6yAT03OqInpq1geYmvXmqTmJYrUv35Vh+a4My9fQ0KTM3baGxudICUtD297iUTOQ2dzi5ZNY21q8XQY1s+GlZ5YI/QxYqNU0ZVTjWhgk9vZhNGNCPozO4lMxqGasNXGo7cTcsp040w3W8becx9+EH/9viVP5o+Yfx2HNdZG2ffIAAAAASUVORK5CYII=";   // UI_TalkClickB 34x34 (diamond frame)
 
@@ -221,10 +221,23 @@ function drawDiamond(x, y, r, color) {
   ctx.closePath(); ctx.fill(); ctx.restore();
 }
 
-/* divider: ◆────────◆ ; if a subtitle is given, the line splits around it */
+/* divider end ornament, as in game: tiny solid diamond, then a hollow diamond */
+function drawDividerEnd(x, y, base, dir) {
+  const r = Math.max(3, base * 0.0060);
+  ctx.save();
+  ctx.strokeStyle = GOLD; ctx.fillStyle = GOLD;
+  ctx.lineWidth = Math.max(1, base * 0.0020);
+  ctx.beginPath();
+  ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y);
+  ctx.closePath(); ctx.stroke();
+  drawDiamond(x + dir * -(r * 2.1), y, r * 0.42, GOLD);
+  ctx.restore();
+}
+
+/* divider: ·◇────────◇· ; if a subtitle is given, the line splits around it */
 function drawDivider(cx, y, width, base, subtitle, subFS) {
-  const r = Math.max(2.5, base * 0.007);
-  const th = Math.max(1, base * 0.0022);
+  const r = Math.max(3, base * 0.0060);
+  const th = Math.max(1, base * 0.0020);
   ctx.save();
   ctx.fillStyle = GOLD; ctx.strokeStyle = GOLD; ctx.lineWidth = th;
   ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
@@ -239,22 +252,17 @@ function drawDivider(cx, y, width, base, subtitle, subFS) {
   } else {
     ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(x1 - r, y); ctx.stroke();
   }
-  drawDiamond(x0, y, r, GOLD);
-  drawDiamond(x1, y, r, GOLD);
+  drawDividerEnd(x0, y, base, 1);
+  drawDividerEnd(x1, y, base, -1);
   ctx.restore();
 }
 
-function drawBubbleIcon(x, y, size) {
-  /* white bubble asset + three dark dots (asset is 99x84) */
-  const w = size, h = size * (84 / 99);
-  ctx.drawImage(bubbleImg, x, y + (size - h) / 2, w, h);
-  const cx = x + w * 0.46, cy = y + (size - h) / 2 + h * 0.46;
-  const r = w * 0.055, gap = w * 0.19;
-  ctx.save(); ctx.fillStyle = "#3d4457";
-  for (let i = -1; i <= 1; i++) {
-    ctx.beginPath(); ctx.arc(cx + i * gap, cy, r, 0, Math.PI * 2); ctx.fill();
-  }
-  ctx.restore();
+function drawBubbleIcon(x, y, h) {
+  /* UI_IconTalkSmall (40x36): white bubble, dots are transparent cutouts
+     so the pill background shows through them, exactly like in game */
+  const w = h * (40 / 36);
+  ctx.drawImage(bubbleImg, x, y, w, h);
+  return w;
 }
 
 function render() {
@@ -280,13 +288,14 @@ function render() {
   const portrait = H >= W;
   const cx = W / 2;
 
-  /* ratios calibrated against a 1280x720 in-game KR screenshot:
-     name box top 0.79H, divider ~5px under name, text ~8px under divider,
-     indicator (diamond+triangle) centered at 0.966H */
-  const nameFS   = base * 0.035;
+  /* ratios measured pixel-by-pixel on a 1920x1080 in-game screenshot:
+     name em top y800 (0.741H), divider y853 spanning x435-1484 (0.546W),
+     text em top y867, choice pill left x1193 (38% width), pill height 71px,
+     choice text ~33px, indicator (diamond+triangle) centered at 0.966H */
+  const nameFS   = base * 0.038;
   const subFS    = base * 0.022;
-  const textFS   = base * 0.032;
-  const choiceFS = base * 0.024;
+  const textFS   = base * 0.036;
+  const choiceFS = base * 0.030;
   const lineH    = textFS * 1.45;
 
   /* ----- dialogue block: name fixed at the in-game anchor (0.79H), text flows
@@ -295,8 +304,8 @@ function render() {
   const hasDialog = state.text.trim() || state.name.trim();
   let textLines = [];
   let blockTop = H - H * 0.055;           /* top of dialogue block, for band + choices */
-  const NAME_TOP = H * 0.790;             /* in-game name row (KR 720p: y571) */
-  const TEXT_TOP_NONAME = H * 0.844;      /* in-game text row without a name */
+  const NAME_TOP = H * 0.741;             /* in-game name row (1080p: y800) */
+  const TEXT_TOP_NONAME = H * 0.803;      /* in-game text row without a name */
   const MAX_TEXT_BOTTOM = H * 0.945;      /* keep clear of the bottom indicator */
 
   if (hasDialog) {
@@ -308,7 +317,7 @@ function render() {
     }
     const n = Math.max(textLines.length, 1);
     const subH = state.subtitle.trim() ? subFS * 0.85 + subFS * 0.75 : 0;
-    const headH = state.name.trim() ? nameFS * 1.12 + subH + textFS * 0.38 : 0;
+    const headH = state.name.trim() ? nameFS * 1.30 + subH + textFS * 0.38 : 0;
     const textTop = state.name.trim() ? NAME_TOP + headH : TEXT_TOP_NONAME;
     const overflow = Math.max(0, textTop + n * lineH - MAX_TEXT_BOTTOM);
     blockTop = (state.name.trim() ? NAME_TOP : textTop) - overflow;
@@ -340,7 +349,7 @@ function render() {
       ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
       ctx.textBaseline = "top";
       ctx.fillText(state.name.trim(), cx, y);
-      y += nameFS * 1.12 + (state.subtitle.trim() ? subFS * 0.85 : 0);
+      y += nameFS * 1.30 + (state.subtitle.trim() ? subFS * 0.85 : 0);
       const divW = portrait ? W * 0.80 : W * 0.52;
       ctx.shadowBlur = 0;
       drawDivider(cx, y, divW, base, state.subtitle.trim(), subFS);
@@ -367,23 +376,24 @@ function render() {
   /* ----- choices: uniform-width pills flush to the right edge, stacked bottom-up ----- */
   const items = state.choices.map(s => s.trim()).filter(Boolean);
   if (items.length && bubbleImg.complete) {
-    /* uniform width for every pill: fixed fraction of the image width,
-       measured from the in-game shot (pill left edge x=1120 of 1920 → 42%) */
-    const pillW = W * 0.42;
-    const icon = choiceFS * 1.45;
-    const padV = choiceFS * 0.40, padL = choiceFS * 0.38, gapI = choiceFS * 0.42;
+    /* in-game 1080p measurements: pill left x1193 (38% of width), 1-line pill
+       h71, icon 48x40 inset 20px, text starts +16 after icon, pill gap 18,
+       stack sits 22px above the name row */
+    const pillW = W * 0.38;
+    const iconH = choiceFS * 1.21, iconW = iconH * (40 / 36);
+    const padV = choiceFS * 0.38, padL = choiceFS * 0.60, gapI = choiceFS * 0.48;
     const padR = choiceFS * 0.8;
     const gap = choiceFS * 0.55;
-    const clineH = choiceFS * 1.3;
-    const maxTextW = pillW - padL - icon - gapI - padR;
+    const clineH = choiceFS * 1.40;
+    const maxTextW = pillW - padL - iconW - gapI - padR;
 
     ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
     const measured = items.map(t => {
       const lines = wrapText(t, maxTextW);
-      return { lines, h: Math.max(icon, lines.length * clineH) + padV * 2 };
+      return { lines, h: Math.max(clineH + padV * 0.6, lines.length * clineH) + padV * 2 };
     });
 
-    let yBottom = blockTop - base * 0.030;
+    let yBottom = blockTop - H * 0.020;
     for (let i = measured.length - 1; i >= 0; i--) {
       const m = measured[i];
       const h = m.h, top = yBottom - h, r = h / 2;
@@ -397,28 +407,31 @@ function render() {
       ctx.lineTo(x0 + r, top + h);
       ctx.arc(x0 + r, top + r, r, Math.PI / 2, Math.PI * 1.5);
       ctx.closePath();
-      /* fill and outline fade toward the right edge, as in the reference template */
+      /* fill/outline fade measured on the in-game shot: near-opaque navy behind
+         the icon/text, dissolving to almost nothing by ~70% of the pill width */
       const fillG = ctx.createLinearGradient(x0, 0, W, 0);
-      fillG.addColorStop(0, "rgba(18,22,30,.58)");
-      fillG.addColorStop(.7, "rgba(18,22,30,.42)");
-      fillG.addColorStop(1, "rgba(18,22,30,.18)");
+      fillG.addColorStop(0, "rgba(40,48,66,.80)");
+      fillG.addColorStop(.30, "rgba(40,48,66,.62)");
+      fillG.addColorStop(.55, "rgba(40,48,66,.30)");
+      fillG.addColorStop(.78, "rgba(40,48,66,.07)");
+      fillG.addColorStop(1, "rgba(40,48,66,.03)");
       ctx.fillStyle = fillG;
       ctx.fill();
       const strokeG = ctx.createLinearGradient(x0, 0, W, 0);
-      strokeG.addColorStop(0, "rgba(240,238,229,.55)");
-      strokeG.addColorStop(.75, "rgba(240,238,229,.30)");
-      strokeG.addColorStop(1, "rgba(240,238,229,0)");
+      strokeG.addColorStop(0, "rgba(205,210,203,.50)");
+      strokeG.addColorStop(.45, "rgba(205,210,203,.28)");
+      strokeG.addColorStop(.72, "rgba(205,210,203,0)");
       ctx.strokeStyle = strokeG;
-      ctx.lineWidth = Math.max(1, base * 0.0016);
+      ctx.lineWidth = Math.max(1, base * 0.0018);
       ctx.stroke();
 
-      drawBubbleIcon(x0 + padL, top + (h - icon) / 2, icon);
+      drawBubbleIcon(x0 + padL, top + (h - iconH) / 2, iconH);
 
       ctx.fillStyle = CHOICE_TEXT;
       ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base * 0.004;
-      const tx = x0 + padL + icon + gapI;
+      const tx = x0 + padL + iconW + gapI;
       const ty0 = top + h / 2 - (m.lines.length - 1) * clineH / 2;
       m.lines.forEach((l, j) => ctx.fillText(l, tx, ty0 + j * clineH));
       ctx.restore();
