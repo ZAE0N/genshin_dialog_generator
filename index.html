@@ -134,9 +134,6 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <div class="row" style="margin-top:10px">
         <input type="checkbox" id="showTri" checked>
         <label for="showTri">진행 표시 ▾</label>
-        <span style="width:12px"></span>
-        <input type="checkbox" id="textYellow">
-        <label for="textYellow">대사 노란색 (클릭 효과)</label>
       </div>
     </fieldset>
 
@@ -144,6 +141,10 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <legend>선택지</legend>
       <div id="choices"></div>
       <button id="addChoice" style="margin-top:8px">+ 선택지 추가</button>
+      <div class="row" style="margin-top:10px">
+        <input type="checkbox" id="choiceYellow">
+        <label for="choiceYellow">선택 표시(●)된 선택지 노란색 (클릭 효과)</label>
+      </div>
       <p class="hint">비워두면 선택지는 표시되지 않아요. 화면 오른쪽 끝에 인게임처럼 밀착됩니다.</p>
     </fieldset>
 
@@ -191,7 +192,7 @@ const state = {
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
   choices: [],
-  showTri: true, textYellow: false, scale: 1, selectedChoice: -1,
+  showTri: true, choiceYellow: false, scale: 1, selectedChoice: -1,
 };
 
 const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
@@ -371,8 +372,7 @@ function render() {
       y += state.subtitle.trim() ? subFS * 0.75 + textFS * 0.38 : textFS * 0.38;
     }
 
-    /* in-game tap feedback shows the line in gold */
-    ctx.fillStyle = state.textYellow ? "#ffd76a" : TEXT_COL;
+    ctx.fillStyle = TEXT_COL;
     ctx.font = `500 ${textFS}px ${FONT_BODY}`;
     ctx.textBaseline = "top";
     for (const line of textLines) { ctx.fillText(line, cx, y); y += lineH; }
@@ -452,7 +452,7 @@ function render() {
 
       drawBubbleIcon(x0 + padL, top + (h - iconH) / 2, iconH);
 
-      ctx.fillStyle = CHOICE_TEXT;
+      ctx.fillStyle = (selected && state.choiceYellow) ? "#ffd76a" : CHOICE_TEXT;
       ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base * 0.004;
@@ -498,7 +498,7 @@ for (const id of ["name", "subtitle", "text"]) {
   state[id] = $(id).value;
 }
 $("showTri").addEventListener("change", () => { state.showTri = $("showTri").checked; render(); });
-$("textYellow").addEventListener("change", () => { state.textYellow = $("textYellow").checked; render(); });
+$("choiceYellow").addEventListener("change", () => { state.choiceYellow = $("choiceYellow").checked; render(); });
 $("scale").addEventListener("input", () => {
   state.scale = parseFloat($("scale").value);
   $("scaleVal").textContent = state.scale.toFixed(2);
