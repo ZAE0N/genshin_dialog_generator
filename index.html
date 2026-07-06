@@ -104,8 +104,8 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
         <input type="checkbox" id="showTri" checked>
         <label for="showTri">진행 표시 ▾</label>
         <span style="width:12px"></span>
-        <input type="checkbox" id="showBand" checked>
-        <label for="showBand">하단 어둡게</label>
+        <input type="checkbox" id="showBand">
+        <label for="showBand">하단 어둡게 (인게임엔 없음)</label>
       </div>
     </fieldset>
 
@@ -134,10 +134,12 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 "use strict";
 /* ---------- embedded Genshin UI assets (extracted from PathOfGenshin/resources) ---------- */
 const ASSET_BUBBLE = "data:image/png;base64,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"; // UI_Frame_TalkBubble_Left 99x84
-const ASSET_TRI    = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABW0lEQVR42o2UTU7DQAyF36Sh4e9uLNn2Aqw4BAdACEFhg1QkNl0gLoVYdIOglGSCLflJ1pNaOtKTndjzaWJ7UsYZuIrakMbHsPRdUNsKxNXQ0ncJmKou+hlOcIZOTG1Y+g3BCdKbhlAfsZrB3EDoQdI0LOFI0F/Txq2UbDAVPTFP6MBD05GpC/iEGwP2Y/o2FSlLyaXQMnQBPTEdxzNz+4B+pdIMSZXN08a1OMclTnGBfdYnrvGCK5aEalKHuYol3mCFh3+hK8w9N9eYvAZcOkZL3OEDT1uhHlvinmOmBwxwAuYResUj3vGsTH/nMRm5So6CK4GmDdj1N8wNtEjQhb/zmOdEbi9wtO7IyBDMUaoGusUZvDkw32u/9riLYL15ZZztnOMuNJU55he51nLqMc/xyE3STF6ELTePNkHlJ6RwBTQZLE2uClWwwivhO/9uOmoKVrgkF81Rq5A/8d+5yYVsvskAAAAASUVORK5CYII=";    // UI_TalkClickA 22x17
+const ASSET_TRI    = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABW0lEQVR42o2UTU7DQAyF36Sh4e9uLNn2Aqw4BAdACEFhg1QkNl0gLoVYdIOglGSCLflJ1pNaOtKTndjzaWJ7UsYZuIrakMbHsPRdUNsKxNXQ0ncJmKou+hlOcIZOTG1Y+g3BCdKbhlAfsZrB3EDoQdI0LOFI0F/Txq2UbDAVPTFP6MBD05GpC/iEGwP2Y/o2FSlLyaXQMnQBPTEdxzNz+4B+pdIMSZXN08a1OMclTnGBfdYnrvGCK5aEalKHuYol3mCFh3+hK8w9N9eYvAZcOkZL3OEDT1uhHlvinmOmBwxwAuYResUj3vGsTH/nMRm5So6CK4GmDdj1N8wNtEjQhb/zmOdEbi9wtO7IyBDMUaoGusUZvDkw32u/9riLYL15ZZztnOMuNJU55he51nLqMc/xyE3STF6ELTePNkHlJ6RwBTQZLE2uClWwwivhO/9uOmoKVrgkF81Rq5A/8d+5yYVsvskAAAAASUVORK5CYII=";    // UI_TalkClickA 22x17 (triangle)
+const ASSET_TRIB   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACBklEQVR42tWYX2rCQBCHt7EmKmvVxBq1CoK9R//Zp0q9Qm9Sj9JS+17pEXqwdAZ+gWFAZFZFffggzCaZz+zsJKsr3pwzcKGIJHrccF+7BBJWwKVExCOjjE1CJK8SMZEQNZAgVi2lDDJBEjESNwhPNIHnGMZio4xZIiHqSNwiUiIDKWJNnJMYZMwSDeIKSa+JvPh1L8ScjxFLcU7DIBMkkSHpsPhxr8WfWzJ8zDGMZUaZYIkbSryAxDtYcozHQmR2l/hwz8yOMqHTAYlPN6PYLcPHHAudpnCJL/dIsYmEYg+BMoES3+6eYmNipBjzWIhMKRKJZlXXNaElkHSA8R7IERtpGV0zyBEjZyRFKmjNNTSkVBWmlugTXaJDtEEHsb6S0QWcIkcNOStaJMZja6ExDaUEzz+mY4CE7bKtA49YF+eM+RolM8S9W7gmliKRqA0P41ytjicU5IjI8eu9eNklOPYYy3HuhK+V0ySeihe1EkmRcloybtmiT/ASnQqRHtEWRVcFCccw1itFiCnfo5TB6yAT03OqInpq1geYmvXmqTmJYrUv35Vh+a4My9fQ0KTM3baGxudICUtD297iUTOQ2dzi5ZNY21q8XQY1s+GlZ5YI/QxYqNU0ZVTjWhgk9vZhNGNCPozO4lMxqGasNXGo7cTcsp040w3W8becx9+EH/9viVP5o+Yfx2HNdZG2ffIAAAAASUVORK5CYII=";   // UI_TalkClickB 34x34 (diamond frame)
 
 const bubbleImg = new Image(); bubbleImg.src = ASSET_BUBBLE;
 const triImg    = new Image(); triImg.src = ASSET_TRI;
+const triBImg   = new Image(); triBImg.src = ASSET_TRIB;
 
 const canvas = document.getElementById("stage");
 const ctx = canvas.getContext("2d");
@@ -146,11 +148,11 @@ const state = {
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
   choices: [],
-  showTri: true, showBand: true, scale: 1,
+  showTri: true, showBand: false, scale: 1,
 };
 
 const FONT_BODY = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
-const GOLD = "#ffc14d";
+const GOLD = "#f0c03a"; /* sampled from in-game name text (240,192,58) */
 const TEXT_COL = "#f5f2e9";
 const CHOICE_TEXT = "#f2efe6";
 
@@ -244,28 +246,24 @@ function render() {
   const portrait = H >= W;
   const cx = W / 2;
 
-  const nameFS   = base * 0.040;
-  const subFS    = base * 0.024;
-  const textFS   = base * 0.036;
-  const choiceFS = base * 0.028;
-  const lineH    = textFS * 1.5;
+  /* ratios calibrated against a 1280x720 in-game KR screenshot:
+     name box top 0.79H, divider ~5px under name, text ~8px under divider,
+     indicator (diamond+triangle) centered at 0.966H */
+  const nameFS   = base * 0.035;
+  const subFS    = base * 0.022;
+  const textFS   = base * 0.032;
+  const choiceFS = base * 0.024;
+  const lineH    = textFS * 1.45;
 
-  /* ----- dialogue block (bottom, centered) — measure first ----- */
+  /* ----- dialogue block: name anchored at fixed height, text flows below ----- */
   const hasDialog = state.text.trim() || state.name.trim();
-  let textLines = [], nameTop = null;
-  let blockTop = H;                       /* top of dialogue block, for band + choices */
-  const bottomPad = H * 0.055;
+  let textLines = [];
+  let blockTop = H - H * 0.055;           /* top of dialogue block, for band + choices */
 
   if (hasDialog) {
     ctx.font = `500 ${textFS}px ${FONT_BODY}`;
     textLines = state.text.trim() ? wrapText(state.text.trim(), W * 0.82) : [];
-    const textH = textLines.length * lineH;
-    const divGap = textFS * 0.65;
-    const nameH = state.name.trim() ? nameFS * 1.25 : 0;
-    const divH  = state.name.trim() ? divGap * 2 : 0;
-    const triH  = state.showTri ? textFS * 0.9 : 0;
-    blockTop = H - bottomPad - triH - textH - divH - nameH;
-    nameTop = blockTop;
+    blockTop = state.name.trim() ? H * 0.790 : H * 0.815;
   }
 
   /* ----- darkening band ----- */
@@ -280,23 +278,22 @@ function render() {
 
   /* ----- dialogue ----- */
   if (hasDialog) {
-    let y = nameTop;
+    let y = blockTop;
     ctx.save();
     ctx.textAlign = "center";
-    ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = base * 0.008; ctx.shadowOffsetY = base * 0.002;
+    ctx.shadowColor = "rgba(0,0,0,.65)"; ctx.shadowBlur = base * 0.010; ctx.shadowOffsetY = base * 0.0025;
 
     if (state.name.trim()) {
       ctx.fillStyle = GOLD;
       ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
       ctx.textBaseline = "top";
       ctx.fillText(state.name.trim(), cx, y);
-      y += nameFS * 1.25;
-      const divW = portrait ? W * 0.80 : W * 0.55;
-      y += textFS * 0.65;
+      y += nameFS * 1.12 + (state.subtitle.trim() ? subFS * 0.85 : 0);
+      const divW = portrait ? W * 0.80 : W * 0.52;
       ctx.shadowBlur = 0;
       drawDivider(cx, y, divW, base, state.subtitle.trim(), subFS);
-      ctx.shadowBlur = base * 0.008;
-      y += textFS * 0.65;
+      ctx.shadowBlur = base * 0.010;
+      y += state.subtitle.trim() ? subFS * 0.75 + textFS * 0.38 : textFS * 0.38;
     }
 
     ctx.fillStyle = TEXT_COL;
@@ -305,35 +302,37 @@ function render() {
     for (const line of textLines) { ctx.fillText(line, cx, y); y += lineH; }
     ctx.restore();
 
-    if (state.showTri && triImg.complete) {
-      const tw = textFS * 0.72, thh = tw * (17 / 22);
-      ctx.drawImage(triImg, cx - tw / 2, y + textFS * 0.18, tw, thh);
+    /* continue indicator: diamond frame + triangle, bottom-center like in game */
+    if (state.showTri && triImg.complete && triBImg.complete) {
+      const s = base * 0.030;
+      const cyI = H * 0.966;
+      ctx.drawImage(triBImg, cx - s / 2, cyI - s / 2, s, s);
+      const tw = s * 0.52, th = tw * (17 / 22);
+      ctx.drawImage(triImg, cx - tw / 2, cyI - th * 0.40, tw, th);
     }
   }
 
-  /* ----- choices: right-edge anchored pills, stacked bottom-up above dialogue ----- */
+  /* ----- choices: uniform-width pills flush to the right edge, stacked bottom-up ----- */
   const items = state.choices.map(s => s.trim()).filter(Boolean);
   if (items.length && bubbleImg.complete) {
-    const maxW = portrait ? W * 0.78 : W * 0.52;
-    const icon = choiceFS * 1.55;
-    const padV = choiceFS * 0.44, padL = choiceFS * 0.38, gapI = choiceFS * 0.42;
+    const pillW = portrait ? W * 0.78 : W * 0.42;   /* same width for every pill, like in game */
+    const icon = choiceFS * 1.45;
+    const padV = choiceFS * 0.40, padL = choiceFS * 0.38, gapI = choiceFS * 0.42;
     const padR = choiceFS * 0.8;
-    const gap = choiceFS * 0.5;
-    const clineH = choiceFS * 1.35;
-    const maxTextW = maxW - padL - icon - gapI - padR;
+    const gap = choiceFS * 0.55;
+    const clineH = choiceFS * 1.3;
+    const maxTextW = pillW - padL - icon - gapI - padR;
 
     ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
     const measured = items.map(t => {
       const lines = wrapText(t, maxTextW);
-      const w = Math.max(...lines.map(l => ctx.measureText(l).width));
-      return { lines, h: Math.max(icon, lines.length * clineH) + padV * 2, w };
+      return { lines, h: Math.max(icon, lines.length * clineH) + padV * 2 };
     });
 
-    let yBottom = (hasDialog ? blockTop : H - bottomPad) - base * 0.028;
+    let yBottom = blockTop - base * 0.030;
     for (let i = measured.length - 1; i >= 0; i--) {
       const m = measured[i];
       const h = m.h, top = yBottom - h, r = h / 2;
-      const pillW = Math.min(maxW, padL + icon + gapI + m.w + padR + choiceFS * 0.4);
       const x0 = W - pillW;
 
       ctx.save();
