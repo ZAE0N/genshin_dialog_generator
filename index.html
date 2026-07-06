@@ -304,8 +304,8 @@ function render() {
   const hasDialog = state.text.trim() || state.name.trim();
   let textLines = [];
   let blockTop = H - H * 0.055;           /* top of dialogue block, for band + choices */
-  const NAME_TOP = H * 0.741;             /* in-game name row (1080p: y800) */
-  const TEXT_TOP_NONAME = H * 0.803;      /* in-game text row without a name */
+  const NAME_TOP = H * 0.841;             /* in-game 0.741H, lowered 10%H per request */
+  const TEXT_TOP_NONAME = H * 0.903;      /* in-game 0.803H, lowered 10%H per request */
   const MAX_TEXT_BOTTOM = H * 0.945;      /* keep clear of the bottom indicator */
 
   if (hasDialog) {
@@ -526,8 +526,8 @@ function addChoiceRow(value) {
   $("choices").append(row);
 }
 $("addChoice").addEventListener("click", () => { addChoiceRow(""); syncChoices(); });
-addChoiceRow("정말 짜증나지 않아?");
-addChoiceRow("방화를 저지를 시간이다.");
+addChoiceRow("'폭풍의 신'…?");
+addChoiceRow("잠깐, 방금 '자기 신전'이라고 말한 거야?");
 syncChoices();
 
 /* save */
