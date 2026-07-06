@@ -125,13 +125,15 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <input type="text" id="name" placeholder="예: 페이몬" value="페이몬">
       <label for="subtitle">부제 (선택)</label>
       <input type="text" id="subtitle" placeholder="예: 최고의 동료">
-      <label for="text">대사</label>
+      <div class="row" style="justify-content:space-between; margin-top:8px">
+        <label for="text" style="margin:0">대사</label>
+        <button id="clearText" type="button" title="입력한 대사 지우기" aria-label="대사 지우기"
+                style="padding:2px 9px; font-size:12px; line-height:1.6">✕</button>
+      </div>
       <textarea id="text" placeholder="대사를 입력하세요">여기에 대사를 입력하면 자동으로 줄바꿈되고, 이미지 크기에 맞춰 글자 크기가 정해져!</textarea>
       <div class="row" style="margin-top:10px">
         <input type="checkbox" id="showTri" checked>
         <label for="showTri">진행 표시 ▾</label>
-        <span style="flex:1"></span>
-        <button id="clearDialog" type="button">대사 전체 지우기</button>
       </div>
     </fieldset>
 
@@ -527,8 +529,8 @@ $("fontReset").addEventListener("click", () => {
   render();
 });
 
-$("clearDialog").addEventListener("click", () => {
-  for (const id of ["name", "subtitle", "text"]) { $(id).value = ""; state[id] = ""; }
+$("clearText").addEventListener("click", () => {
+  $("text").value = ""; state.text = "";
   render();
 });
 
