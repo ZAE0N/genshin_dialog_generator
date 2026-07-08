@@ -408,7 +408,8 @@ function render() {
       return { lines, h: Math.max(clineH + padV * 0.6, lines.length * clineH) + padV * 2 };
     });
 
-    let yBottom = blockTop - base * 0.020;
+    /* portrait frames get a ~10px extra lift (base 832 -> 10px) */
+    let yBottom = blockTop - base * 0.020 - (portrait ? base * 0.012 : 0);
     for (let i = measured.length - 1; i >= 0; i--) {
       const m = measured[i];
       const h = m.h, top = yBottom - h, r = h / 2;
