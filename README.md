@@ -1,6 +1,7 @@
 # genshin_dialog_generator
 
-원신(Genshin Impact) 스타일 대화창 이미지를 만드는 웹 편집기입니다.
+원신(Genshin Impact)·붕괴: 스타레일(HSR) 스타일 대화창 이미지를 만드는 웹 편집기입니다.
+상단 드롭다운에서 게임을 선택하면 해당 게임의 대화 UI로 렌더링됩니다.
 포토샵 없이 브라우저에서 이름·대사·선택지를 입력하고 PNG로 저장할 수 있습니다.
 
 ## 사용법
@@ -15,8 +16,8 @@
 
 ## 리소스 출처
 
-- `assets/genshin/talk/` — [PathOfGenshin/resources](https://github.com/PathOfGenshin/resources)에서
-  추출한 인게임 UI 스프라이트 (자세한 내용은 해당 폴더의 README 참고)
+- `assets/genshin/talk/`, `assets/hsr/talk/` — [PathOfGenshin/resources](https://github.com/PathOfGenshin/resources)에서
+  추출한 인게임 UI 스프라이트 (자세한 내용은 각 폴더의 README 참고)
 - 배치 기준 — 실제 인게임 스크린샷 및
   [Kaerralind의 Genshin Dialogue Template](https://www.deviantart.com/kaerralind/art/Genshin-Dialogue-Template-922592432)
   (무료 사용, 크레딧 불요 명시)

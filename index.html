@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>원신 대화창 편집기</title>
+<title>호요버스 대화창 편집기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
@@ -51,12 +51,12 @@ main { flex:1; display:flex; min-height:0; }
 fieldset { border:1px solid var(--line); border-radius:10px; padding:12px 12px 14px; margin:0; }
 legend { font-size:12px; color:var(--gold); padding:0 6px; letter-spacing:.08em; }
 label { display:block; font-size:12px; color:var(--ink-dim); margin:8px 0 4px; }
-input[type=text], textarea {
+input[type=text], textarea, select {
   width:100%; background:var(--panel-2); color:var(--ink); border:1px solid var(--line);
   border-radius:7px; padding:8px 10px; font-size:14px; font-family:inherit;
 }
 textarea { resize:vertical; min-height:64px; }
-input:focus, textarea:focus { outline:2px solid var(--gold); outline-offset:-1px; }
+input:focus, textarea:focus, select:focus { outline:2px solid var(--gold); outline-offset:-1px; }
 .row { display:flex; gap:8px; align-items:center; }
 .row label { margin:0; }
 input[type=range] { flex:1; accent-color:var(--gold); }
@@ -72,15 +72,22 @@ button.primary {
   border:none; padding:11px 14px; font-size:14px; width:100%;
 }
 button.primary:hover { filter:brightness(1.06); color:#26200f; }
-.choice-row { display:flex; gap:6px; margin-top:6px; }
-.choice-row input { flex:1; }
+#gameSel { font-weight:700; color:var(--gold-b); }
+.choice-row { display:flex; gap:6px; margin-top:6px; align-items:center; }
+.choice-row input[type=text] { flex:1; }
+.choice-row select.iconSel { flex:none; width:74px; padding:6px 4px; font-size:12px; }
 .choice-row button { flex:none; padding:6px 10px; }
 .choice-row .sel { padding:6px 9px; color:var(--ink-dim); }
 .choice-row.selected .sel { color:#fff; border-color:#fff; }
-.choice-row.selected input { border-color:rgba(255,255,255,.65); }
+.choice-row.selected input[type=text] { border-color:rgba(255,255,255,.65); }
 .hint { font-size:11.5px; color:var(--ink-dim); line-height:1.5; margin:6px 0 0; }
 #dims { font-size:11.5px; color:var(--ink-dim); }
 #fileBtn { width:100%; }
+.gi-only, .hsr-only { display:none; }
+body[data-game="gi"] .row.gi-only, body[data-game="hsr"] .row.hsr-only { display:flex; }
+body[data-game="gi"] label.gi-only, body[data-game="gi"] input.gi-only { display:block; }
+.choice-row .iconSel.hsr-only { display:none; }
+body[data-game="hsr"] .choice-row .iconSel { display:block; }
 @media (max-width:760px) {
   body { height:auto; min-height:100%; }
   main { flex-direction:column; }
@@ -89,8 +96,7 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
   #previewWrap { min-height:0; padding:12px; }
   #stage { max-height:52vh; width:auto; }
   #panel { width:100%; border-left:none; border-top:1px solid var(--line); padding:14px 14px 28px; }
-  /* touch-friendly: bigger targets, 16px inputs so iOS doesn't zoom on focus */
-  input[type=text], textarea { font-size:16px; padding:10px 12px; }
+  input[type=text], textarea, select { font-size:16px; padding:10px 12px; }
   button { padding:11px 14px; font-size:15px; }
   .choice-row button { padding:10px 14px; }
   input[type=checkbox] { width:19px; height:19px; }
@@ -98,9 +104,9 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 }
 </style>
 </head>
-<body>
+<body data-game="gi">
 <header>
-  <h1>원신 대화창 편집기</h1>
+  <h1>호요버스 대화창 편집기</h1>
   <span class="sub">이미지를 올리면 크기에 맞춰 대화창·선택지가 자동 배치됩니다</span>
 </header>
 <main>
@@ -113,6 +119,14 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 
   <div id="panel">
     <fieldset>
+      <legend>게임</legend>
+      <select id="gameSel">
+        <option value="gi">원신 (Genshin Impact)</option>
+        <option value="hsr">붕괴: 스타레일 (Honkai: Star Rail)</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
       <legend>이미지</legend>
       <input type="file" id="file" accept="image/*" hidden>
       <button id="fileBtn">이미지 업로드…</button>
@@ -123,8 +137,8 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <legend>대화창</legend>
       <label for="name">이름</label>
       <input type="text" id="name" placeholder="예: 페이몬" value="페이몬">
-      <label for="subtitle">부제 (선택)</label>
-      <input type="text" id="subtitle" placeholder="예: 최고의 동료">
+      <label for="subtitle" class="gi-only">부제 (선택)</label>
+      <input type="text" id="subtitle" class="gi-only" placeholder="예: 최고의 동료">
       <div class="row" style="justify-content:space-between; margin-top:8px">
         <label for="text" style="margin:0">대사</label>
         <button id="clearText" type="button" title="입력한 대사 지우기" aria-label="대사 지우기"
@@ -133,7 +147,7 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <textarea id="text" placeholder="대사를 입력하세요">여기에 대사를 입력하면 자동으로 줄바꿈되고, 이미지 크기에 맞춰 글자 크기가 정해져!</textarea>
       <div class="row" style="margin-top:10px">
         <input type="checkbox" id="showTri" checked>
-        <label for="showTri">진행 표시 ▾</label>
+        <label for="showTri">진행 표시</label>
       </div>
     </fieldset>
 
@@ -141,11 +155,12 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
       <legend>선택지</legend>
       <div id="choices"></div>
       <button id="addChoice" style="margin-top:8px">+ 선택지 추가</button>
-      <div class="row" style="margin-top:10px">
+      <div class="row gi-only" style="margin-top:10px">
         <input type="checkbox" id="choiceYellow">
-        <label for="choiceYellow">선택 표시(●)된 선택지 노란 배경 (클릭 효과)</label>
+        <label for="choiceYellow">선택 표시(●) 노란 배경 (클릭 효과)</label>
       </div>
-      <p class="hint">비워두면 선택지는 표시되지 않아요. 화면 오른쪽 끝에 인게임처럼 밀착됩니다.</p>
+      <p class="hint">선택지 왼쪽 ● 를 누르면 그 항목이 "선택된" 상태로 표시됩니다.
+      비워두면 표시되지 않아요.</p>
     </fieldset>
 
     <fieldset>
@@ -176,32 +191,50 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 
 <script>
 "use strict";
-/* ---------- embedded Genshin UI assets (extracted from PathOfGenshin/resources) ---------- */
-const ASSET_BUBBLE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAkCAYAAAD7PHgWAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACZElEQVR42t3YsW7TQBjA8VNAiNHKngGpBTGBhCsh1AkID0AeojxCQBVr2BhTXqCLGREC+Q1clIWKtolYEAEJJc7UhcHhf9Kn6HQ6n11kJ26H39DY9/kvxXEuVbPpmSrl16nX/5/vp65iYIjBfHoWYYIFljPLHFhggkivQVhX4E2G9pAgRSYBwhFo0WuQIkFPzywb6H5Lfq70kMymp8tKSSiUQ6nAAENkWg2BmRgiuGhgh6gYWd2BIkGnbGAHIwlbS6AYoQMr0KhGgASFQTUFJwh8gQNkmwoUg7zAENmmA0VoB15D1KDAyA58yB/nWApZ4ME5Ju/xi887X/z+totV4Gs50IxAELdvBn70DBwiRBdHnoAYOyL2zDtCFyGGnsDPZuBxzsAYSrSwjdQx8CuvtdESbf2aY14qM1pQIs4JPDEDf9g3rXzB9x3fzQnst+gQynJobhb0GiRQMM/r6+P29e3AY1cgYo4FRmCI1BE4xhaU2GLtxBGYIjQCA32NMoEfXIEi4vhThu5hjEwCbQl6ItFr7UAxxp6eqWdj6Qq078G+J9C+gAT6+ddbx92B+1htFu4zdNGgB3VK9L25tZt516DAAx1nB95tUOAdV+ANvGpA4EtcdwUqEcN1E1cp70dVXGZHHSDeQGCMoCjQfIC+X2NgZMQVB4oWC9+sIXDg/9lZ/K+LXXwqehAXba8cH4o/eJxz/VKBti4ipBUGqioDW2IbL4g6wBcsPIHfMcoJ/IvnVQfa2riNHdY8M/HaA9xCG29zAk8QlA2sl7l7hv0JbkKg9gQRxjrOMOGcR5sO9OOcSxn4Dw9+SXYKX0YuAAAAAElFTkSuQmCC"; // UI_IconTalkSmall 40x36 — the actual in-game choice icon
-const ASSET_TRI    = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABW0lEQVR42o2UTU7DQAyF36Sh4e9uLNn2Aqw4BAdACEFhg1QkNl0gLoVYdIOglGSCLflJ1pNaOtKTndjzaWJ7UsYZuIrakMbHsPRdUNsKxNXQ0ncJmKou+hlOcIZOTG1Y+g3BCdKbhlAfsZrB3EDoQdI0LOFI0F/Txq2UbDAVPTFP6MBD05GpC/iEGwP2Y/o2FSlLyaXQMnQBPTEdxzNz+4B+pdIMSZXN08a1OMclTnGBfdYnrvGCK5aEalKHuYol3mCFh3+hK8w9N9eYvAZcOkZL3OEDT1uhHlvinmOmBwxwAuYResUj3vGsTH/nMRm5So6CK4GmDdj1N8wNtEjQhb/zmOdEbi9wtO7IyBDMUaoGusUZvDkw32u/9riLYL15ZZztnOMuNJU55he51nLqMc/xyE3STF6ELTePNkHlJ6RwBTQZLE2uClWwwivhO/9uOmoKVrgkF81Rq5A/8d+5yYVsvskAAAAASUVORK5CYII=";    // UI_TalkClickA 22x17 (triangle)
-const ASSET_TRIB   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACBklEQVR42tWYX2rCQBCHt7EmKmvVxBq1CoK9R//Zp0q9Qm9Sj9JS+17pEXqwdAZ+gWFAZFZFffggzCaZz+zsJKsr3pwzcKGIJHrccF+7BBJWwKVExCOjjE1CJK8SMZEQNZAgVi2lDDJBEjESNwhPNIHnGMZio4xZIiHqSNwiUiIDKWJNnJMYZMwSDeIKSa+JvPh1L8ScjxFLcU7DIBMkkSHpsPhxr8WfWzJ8zDGMZUaZYIkbSryAxDtYcozHQmR2l/hwz8yOMqHTAYlPN6PYLcPHHAudpnCJL/dIsYmEYg+BMoES3+6eYmNipBjzWIhMKRKJZlXXNaElkHSA8R7IERtpGV0zyBEjZyRFKmjNNTSkVBWmlugTXaJDtEEHsb6S0QWcIkcNOStaJMZja6ExDaUEzz+mY4CE7bKtA49YF+eM+RolM8S9W7gmliKRqA0P41ytjicU5IjI8eu9eNklOPYYy3HuhK+V0ySeihe1EkmRcloybtmiT/ASnQqRHtEWRVcFCccw1itFiCnfo5TB6yAT03OqInpq1geYmvXmqTmJYrUv35Vh+a4My9fQ0KTM3baGxudICUtD297iUTOQ2dzi5ZNY21q8XQY1s+GlZ5YI/QxYqNU0ZVTjWhgk9vZhNGNCPozO4lMxqGasNXGo7cTcsp040w3W8becx9+EH/9viVP5o+Yfx2HNdZG2ffIAAAAASUVORK5CYII=";   // UI_TalkClickB 34x34 (diamond frame)
+/* ---------- embedded assets ---------- */
+/* Genshin (from PathOfGenshin/resources) */
+const A_GI_BUBBLE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAkCAYAAAD7PHgWAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACZElEQVR42t3YsW7TQBjA8VNAiNHKngGpBTGBhCsh1AkID0AeojxCQBVr2BhTXqCLGREC+Q1clIWKtolYEAEJJc7UhcHhf9Kn6HQ6n11kJ26H39DY9/kvxXEuVbPpmSrl16nX/5/vp65iYIjBfHoWYYIFljPLHFhggkivQVhX4E2G9pAgRSYBwhFo0WuQIkFPzywb6H5Lfq70kMymp8tKSSiUQ6nAAENkWg2BmRgiuGhgh6gYWd2BIkGnbGAHIwlbS6AYoQMr0KhGgASFQTUFJwh8gQNkmwoUg7zAENmmA0VoB15D1KDAyA58yB/nWApZ4ME5Ju/xi887X/z+totV4Gs50IxAELdvBn70DBwiRBdHnoAYOyL2zDtCFyGGnsDPZuBxzsAYSrSwjdQx8CuvtdESbf2aY14qM1pQIs4JPDEDf9g3rXzB9x3fzQnst+gQynJobhb0GiRQMM/r6+P29e3AY1cgYo4FRmCI1BE4xhaU2GLtxBGYIjQCA32NMoEfXIEi4vhThu5hjEwCbQl6ItFr7UAxxp6eqWdj6Qq078G+J9C+gAT6+ddbx92B+1htFu4zdNGgB3VK9L25tZt516DAAx1nB95tUOAdV+ANvGpA4EtcdwUqEcN1E1cp70dVXGZHHSDeQGCMoCjQfIC+X2NgZMQVB4oWC9+sIXDg/9lZ/K+LXXwqehAXba8cH4o/eJxz/VKBti4ipBUGqioDW2IbL4g6wBcsPIHfMcoJ/IvnVQfa2riNHdY8M/HaA9xCG29zAk8QlA2sl7l7hv0JbkKg9gQRxjrOMOGcR5sO9OOcSxn4Dw9+SXYKX0YuAAAAAElFTkSuQmCC"; // UI_IconTalkSmall 40x36
+const A_GI_TRI    = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABW0lEQVR42o2UTU7DQAyF36Sh4e9uLNn2Aqw4BAdACEFhg1QkNl0gLoVYdIOglGSCLflJ1pNaOtKTndjzaWJ7UsYZuIrakMbHsPRdUNsKxNXQ0ncJmKou+hlOcIZOTG1Y+g3BCdKbhlAfsZrB3EDoQdI0LOFI0F/Txq2UbDAVPTFP6MBD05GpC/iEGwP2Y/o2FSlLyaXQMnQBPTEdxzNz+4B+pdIMSZXN08a1OMclTnGBfdYnrvGCK5aEalKHuYol3mCFh3+hK8w9N9eYvAZcOkZL3OEDT1uhHlvinmOmBwxwAuYResUj3vGsTH/nMRm5So6CK4GmDdj1N8wNtEjQhb/zmOdEbi9wtO7IyBDMUaoGusUZvDkw32u/9riLYL15ZZztnOMuNJU55he51nLqMc/xyE3STF6ELTePNkHlJ6RwBTQZLE2uClWwwivhO/9uOmoKVrgkF81Rq5A/8d+5yYVsvskAAAAASUVORK5CYII=";    // UI_TalkClickA 22x17
+const A_GI_TRIB   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACBklEQVR42tWYX2rCQBCHt7EmKmvVxBq1CoK9R//Zp0q9Qm9Sj9JS+17pEXqwdAZ+gWFAZFZFffggzCaZz+zsJKsr3pwzcKGIJHrccF+7BBJWwKVExCOjjE1CJK8SMZEQNZAgVi2lDDJBEjESNwhPNIHnGMZio4xZIiHqSNwiUiIDKWJNnJMYZMwSDeIKSa+JvPh1L8ScjxFLcU7DIBMkkSHpsPhxr8WfWzJ8zDGMZUaZYIkbSryAxDtYcozHQmR2l/hwz8yOMqHTAYlPN6PYLcPHHAudpnCJL/dIsYmEYg+BMoES3+6eYmNipBjzWIhMKRKJZlXXNaElkHSA8R7IERtpGV0zyBEjZyRFKmjNNTSkVBWmlugTXaJDtEEHsb6S0QWcIkcNOStaJMZja6ExDaUEzz+mY4CE7bKtA49YF+eM+RolM8S9W7gmliKRqA0P41ytjicU5IjI8eu9eNklOPYYy3HuhK+V0ySeihe1EkmRcloybtmiT/ASnQqRHtEWRVcFCccw1itFiCnfo5TB6yAT03OqInpq1geYmvXmqTmJYrUv35Vh+a4My9fQ0KTM3baGxudICUtD297iUTOQ2dzi5ZNY21q8XQY1s+GlZ5YI/QxYqNU0ZVTjWhgk9vZhNGNCPozO4lMxqGasNXGo7cTcsp040w3W8becx9+EH/9viVP5o+Yfx2HNdZG2ffIAAAAASUVORK5CYII=";   // UI_TalkClickB 34x34
+/* Honkai: Star Rail choice icons + continue chevron */
+const A_HSR = {
+  continue:    { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAjCAQAAABWDGCrAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABOUlEQVR42tWWP0vDQBiHLQjOoThI5yKCg2LAoQ4KyZDNIX4GIxTcRL+ABBxd/AwS5yJkcc7QD1BwchNXFymPR9L0uNx095ZCn99ySx5yf973bmuzoKcS0GsjE1XkqxGVQI5cRApAIRcNaZiy6z3FxYczGj4JZaKCljmRRHSvRSrX/qIYkye9Vm6iPn+YFF4ilQldKgJsEX1iRvUo4YpkmVjlghElNjOGtugBgFMGuPBL1E7RFEUMcCUzRWNvEeRSkabUohsAzp1F8zqvXdGlo8g+6dx5i1K92PqPThxFX1Y3YIcjDupRyBnhMscqh+wzwaYicC+RD7oUPrW2ZxXti1/RJpjc+raRR2O7U//G9k7LD6Gk1X7TMCWQNP9wsdRvbMuuowyAZ/kjogLGEou++zOhRp/stb6l/gGMQomOdtXaUwAAAABJRU5ErkJggg==", w:36, h:35 },
+  talk:        { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAdCAQAAABlYnYxAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAwklEQVR42t2U0QnCMBCG70ZwBW03cE2hULHaFewkjuAOJW3f009CAwEtQpM+VL97O8IHueR+2RIoSk5DzxJ6GnIU9RJyDDEY8iBpiKUJEkMsBpUJEhDZrqSjpKYj0HGmpofPM/OSngOKjhktFot/QpSp4zBjhqLsaeclBepKhIuXXFFflZdUIr5zWkuSfp0lgy25fR/sv3229AVcNwrSQynE48AShhCPb+CwWFqOEkWQPMnQNMmDHZomuTtFmqSQn+YF2ueXHBveRPQAAAAASUVORK5CYII=",     w:34, h:29 },
+  talkGold:    { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAfCAYAAACPvW/2AAAACXBIWXMAAA7EAAAOxAGVKw4bAAACr0lEQVR42tWXP2gTURzHTxB00i6lKa2LguJSKwi9aIoKmlTpHzMoOGRwUOjQQbGCli4OESuNjakREsxQ0dFNB0GXgAXbeDGiUU4aMJDDNhLKIVd7tM/fd3jl4l1zxnLX9MF3uHvf9/t+kry794sQ6Gre1kgSGh1oO6mZdJjkJwUdkh8ZyEKmJZCvY5cn4G3ZH74euPElfafwu/iUseITR4TayEAWMpFtCQTDopxk0I/MOCu9G3NEqM1zkGkJBFJQw1TKPljEQieFDGQhE9kmoPP+vSKHcQuIQyHbBHRG9ASZ8owp0xErociqUUrmLjOqNFMlk3+9ushE9tYFKksxVpHi2Igr6wFVcrRJcxNsQRq3BMJa1ECt/wbCYq2QYulXt2VIk5P6zw/RNSgOwuYm2dsXI/n3r0dk7fMkwKqAytnoytK31DKvg5qoXR+QFGG6nNAHL4mJ/hN7RGjosi+u5eNMmY384sL1VfIEaX7geHvXUOgIPKyUua8aPcO0tr+7TYQGL3YmVKo9Pxv9d6AKFcGnAcjJzqadEM2L0y9HCwjgQbgOGjyAwrq/PVjLPYCCp5yLNTJQ4/9k9psaG7Ocrb2pl74+YvPZCCvab2oXHvtPMQ4D2Tz2jr8YAWGQC29q94EuBPZ5jYerMnPPtcMV2SagnqOeA7z94EButR/INgF1H9rdGh7uWWvQAORGg4ZMZFsCgRQG3sIuz6UYnV9VxcrZCaZRodXvUxtuYZGFTGTbNvnYaKSbqvxYV6SYhpflwseHuipPqeHRvufkCZHOGRSsQ702Tb5ZAg3+5AGIw1y74rtF95vIs8Ol/2VmIHxLlXxS4zAQPJsGJKfH1NDAwVMA2VSg3mNtHXkp/qbP136a7nEIxyTwUWvyrLe1hXtcA8KoNekUkGA3nAAS6hx/AH1yfNXVt8jdAAAAAElFTkSuQmCC",    w:36, h:31 },
+  mission:     { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAQAAACQTsNJAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA6UlEQVR42u3WwQnCQBAFUA1pIL1oB7l6s4yQoxaV9aBnK9BaxAJk+bpMlpnId4gQhID/nzJLHkuyhCzmEZjMFsFSOkR0/mMkUCR8gwSAIhDcCYq+ndykyOC6QyH1kAC4CBAcRAkHUYYjSniIMvSV4gRJfPVCH+wVmiNKqUV0F4moKFINmMM7ctY1IRjCGEW2sKndE1vDZmN3skdEzg2rj8gad+Q8sEszRRKTE4UhiCUghCLSNiOJoYglWiUsU/ZMTKWIJUohSNCMOmzNQsMZByGEy7AVJUYxHFFiVNDy6SRf+z8yOTKPX5AnUKAYWdQ4ufcAAAAASUVORK5CYII=",  w:34, h:34 },
+  missionGold: { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAMAAADW3miqAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA4VBMVEUAAABdTylHNxVjVC5KORhjVC5KORhJOBhJOBBHNxVHNxVJOBhNPBdJOBhJOBhRQBhRQBtJOBhJOBhVRSRKORhKORhJOBhKORhNPBxKORhhUShhUTBdVSxdVSyFcUeqqnGupnWKgE/Lw4qMflC5qHKyqnmyqnHezo/fzJH/97Xm3J/Ty5Lfx4fMwonXx47Xx47k0pbn15br05Xt0pP/56Xy3Z7r05rmz5H/97b66qn/56b/56X/3573357v35703Jv315b115Xu0pDvz47sz5Psz47mz5Hnz47mzIznx47nx4by71WqAAAAOHRSTlMAAQEEBAgICAgPEBIZICYoKjhJTU1QUVJVVGlxdX2NkpagoqbDy8vb3ePj4+Pj5+/09/b3+/r7+2XZ4kAAAAGNSURBVHjaldTJWsIwFIbhiCjzVGYHVEQmQUChUjRAKZjC/V+Qf9Ocp31iF/htCMm7OJtTFiqmx/RgzkD+dVPGopW6bn7JmtEoRugHAakizMVfpJt4/DJeWx3RqnaNSAVGR1c6iilUGVYIVYdVIFKBSVXGgwANxtVUSKlTtjxZrGoK4XcxKWflozII5nUxDaPp4g1KvhGC2QoRRkJsocIoDfOuow+otK/8eUa2685mswKhommarmuP/LmYnKcPA3STJJS8BYLqQfmo3Oe42M3ukgFK3ps7XPJeWaFH7iH7qRBGxWfbQ/xBodILx8uet3I5Qrlcix9OpwPvlhTKQO2PRwFFCEb4JqMQVBdKcB4gDuQbhZQSgjcINbgQykgR84L6dhzLqM8/0bxuWI7jGflIiEFtJPKSaAPDFPIVg+qsLYPVZcyw1h0YDUEZnaXBVMayY8AwMsQxVztPe5dvq3nIEGKJRIL2Dkd9QelfgtFK4Ui3OmIBQoEhdcYGRyMyuqLByehI+/SQ0ZTePz9zvyX6Ze7y1wgKAAAAAElFTkSuQmCC", w:36, h:36 },
+  exit:        { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAeCAQAAAB++w0XAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA1klEQVR42sXUuw3CMBSF4WsxATsEJoAJyAgZwh3QuaYhJVIaz4BgDwQdDRRMQMQEiBysWJEl4ljWDYj/1F/lB/0/xJVw+bPe7Of85l1pdsAwzEuMMfBO2IX5mTqqcQoJYefnlyDXADI+l4BJcnkGm+riV6IqqVSlsPjY0myPphWEXYtjjZg0j7s0j7tOLQ6BHLHpPjyHYHCH/XwEhfbBzc22aNq4g4u/NilsBRHr1jnMvfMF/8FK7IhC/M7/LsKf1cPsGPqswr3qpf34hMNdU+IFYfd1/gbvYXum9OXH0wAAAABJRU5ErkJggg==",     w:31, h:30 },
+  check:       { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAfCAQAAADHaLwEAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABm0lEQVR42rXVMU/CQBjGcS7opDEQddZBEgcXIiSMDsTNyY7uNNEdGVyccNVB2I0LRHdC4uBCwB0jfAEG0sHRtH/D3QUrbY8S9HnGa3+9vm3aRDAI1cQC+VcmywV33HKFxfaip6/KnjPkd1rkEIj4zD5vBOPich+fKeDwE4chmpFtxUN2p8iQCpsk5S0WqOPqPsR5Mj1UmqzNrOcYa8hCIEyMNUVEyPqehsakjYzey0AeFn4ZV7ZkYjKo2IgIRvChBm1ibAC+SBuYMgAOK9FMFYB3hIE5QiUdzdQA6BiZLCoH83bTibWbnXmzcYxMCRnTbPKoWAamBcCriRE4ALQjmRwuAI9mpoqKHcF0NQNPbEUzKUa4k3qniJmu84w/DsckSYbf+wmubo2MDynSJ5gbzQQhr6wYPaUaVZoMiEo9EYwarYbC0ueMEf5UTKM+5IXZfHIt19K0p1/D7uSyNGh4qQCjm+eSNgPZJjYpxLQ2jmRyCM8G8KwoxtwMLUoI9nCAgd7N4pD/rfaKy/5Ve+q3g1iO2cBCLMfo/jnzDU8YA6ZSQyRlAAAAAElFTkSuQmCC",    w:35, h:31 },
+};
+const A_HSR_NEXT = { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAMCAYAAAB8xa1IAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA0ElEQVR42q3SsQqCUBjFcbfIRUcfwJbAuUGImmryFaIxeoB6sggiqAcIwrYcnG1ycZO+/kMX5KOLSF75gcM5nOFeR94yxRHS4oaR8z38j/GAtDggdhrFBXJL+I6ByTY6QzwtnRxLk9VFHydLcfMjv7Vkz/B1XpddXCBKjaSRS1BDlCtck2sb85BClAoxJqggSgrP6XIoBMggSokXRMkQmH7XsRAFpEWBUNU7j0UoIRYlIpP/d2yOynJns15G9CuzvcK+x9Yw36r3ATW2x65r7wO8NibVPSZglAAAAABJRU5ErkJggg==", w:26, h:12 }; // TalkTextNextIcon (chevron)
 
-const bubbleImg = new Image(); bubbleImg.src = ASSET_BUBBLE;
-const triImg    = new Image(); triImg.src = ASSET_TRI;
-const triBImg   = new Image(); triBImg.src = ASSET_TRIB;
+function mkImg(src){ const i = new Image(); i.src = src; return i; }
+const giBubble = mkImg(A_GI_BUBBLE), giTri = mkImg(A_GI_TRI), giTriB = mkImg(A_GI_TRIB);
+const hsrImg = {}; for (const k in A_HSR) hsrImg[k] = mkImg(A_HSR[k].src);
+const hsrNext = mkImg(A_HSR_NEXT.src);
+
+const HSR_ICON_LABELS = {
+  continue:"→ 진행", talk:"💬 잡담", talkGold:"💬 특수", mission:"‹!› 임무",
+  missionGold:"‹!› 중요", exit:"⇥ 종료", check:"🔍 조사",
+};
 
 const canvas = document.getElementById("stage");
 const ctx = canvas.getContext("2d");
 
 const state = {
+  game: "gi",
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
-  choices: [],
+  choices: [], choiceIcons: [],
   showTri: true, choiceYellow: false, scale: 1, selectedChoice: -1,
 };
 
 const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
-let FONT_BODY = BASE_FONTS; /* switches to the user-loaded font family when one is loaded */
-const GOLD = "#f0c03a"; /* sampled from in-game name text (240,192,58) */
-const TEXT_COL = "#f5f2e9";
-const CHOICE_TEXT = "#f2efe6";
+let FONT_BODY = BASE_FONTS;
+const GI_GOLD = "#f0c03a", GI_TEXT = "#f5f2e9", GI_CHOICE_TEXT = "#f2efe6";
+const HSR_GOLD = "#d7be8e", HSR_TEXT = "#f6f6f6", HSR_CHOICE_TEXT = "#f3f2ef";
 
-/* ---------- text wrapping (Korean: fall back to per-char when a word overflows) ---------- */
+/* ---------- text wrapping ---------- */
 function wrapText(text, maxWidth) {
   const out = [];
   for (const raw of text.split("\n")) {
@@ -224,33 +257,35 @@ function wrapText(text, maxWidth) {
   while (out.length && out[out.length - 1] === "") out.pop();
   return out;
 }
-
 function drawDiamond(x, y, r, color) {
   ctx.save(); ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y);
   ctx.closePath(); ctx.fill(); ctx.restore();
 }
+/* tint a white sprite to a target rgb by drawing then multiplying (icons are already
+   white or gold, so we draw them as-is; gold variants keep their own color) */
+function drawSprite(img, x, y, w, h) { if (img.complete) ctx.drawImage(img, x, y, w, h); }
 
-/* divider end ornament, as in game: tiny solid diamond, then a hollow diamond */
-function drawDividerEnd(x, y, base, dir) {
+/* =======================================================================
+   GENSHIN renderer
+   ======================================================================= */
+function drawGIDividerEnd(x, y, base, dir) {
   const r = Math.max(3, base * 0.0060);
   ctx.save();
-  ctx.strokeStyle = GOLD; ctx.fillStyle = GOLD;
+  ctx.strokeStyle = GI_GOLD; ctx.fillStyle = GI_GOLD;
   ctx.lineWidth = Math.max(1, base * 0.0020);
   ctx.beginPath();
   ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y);
   ctx.closePath(); ctx.stroke();
-  drawDiamond(x + dir * -(r * 2.1), y, r * 0.42, GOLD);
+  drawDiamond(x + dir * -(r * 2.1), y, r * 0.42, GI_GOLD);
   ctx.restore();
 }
-
-/* divider: ·◇────────◇· ; if a subtitle is given, the line splits around it */
-function drawDivider(cx, y, width, base, subtitle, subFS) {
+function drawGIDivider(cx, y, width, base, subtitle, subFS) {
   const r = Math.max(3, base * 0.0060);
   const th = Math.max(1, base * 0.0020);
   ctx.save();
-  ctx.fillStyle = GOLD; ctx.strokeStyle = GOLD; ctx.lineWidth = th;
+  ctx.fillStyle = GI_GOLD; ctx.strokeStyle = GI_GOLD; ctx.lineWidth = th;
   ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
   const x0 = cx - width / 2, x1 = cx + width / 2;
   if (subtitle) {
@@ -263,319 +298,331 @@ function drawDivider(cx, y, width, base, subtitle, subFS) {
   } else {
     ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(x1 - r, y); ctx.stroke();
   }
-  drawDividerEnd(x0, y, base, 1);
-  drawDividerEnd(x1, y, base, -1);
+  drawGIDividerEnd(x0, y, base, 1);
+  drawGIDividerEnd(x1, y, base, -1);
   ctx.restore();
 }
-
-function drawBubbleIcon(x, y, h) {
-  /* UI_IconTalkSmall (40x36): white bubble, dots are transparent cutouts
-     so the pill background shows through them, exactly like in game */
-  const w = h * (40 / 36);
-  ctx.drawImage(bubbleImg, x, y, w, h);
-  return w;
-}
-
-function render() {
+function renderGI(base, portrait, cx) {
   const { W, H } = state;
-  canvas.width = W; canvas.height = H;
-
-  /* background */
-  if (state.img) {
-    ctx.drawImage(state.img, 0, 0, W, H);
-  } else {
-    const g = ctx.createLinearGradient(0, 0, W, H);
-    g.addColorStop(0, "#2a3547"); g.addColorStop(.6, "#1a2230"); g.addColorStop(1, "#11151d");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    ctx.save();
-    ctx.fillStyle = "rgba(236,229,216,.28)";
-    ctx.font = `500 ${Math.round(Math.min(W,H)*0.032)}px ${FONT_BODY}`;
-    ctx.textAlign = "center";
-    ctx.fillText("이미지를 업로드하면 여기에 표시됩니다", W/2, H*0.38);
-    ctx.restore();
-  }
-
-  const base = Math.min(W, H) * state.scale;
-  const portrait = H >= W;
-  const cx = W / 2;
-
-  /* ratios measured pixel-by-pixel on a 1920x1080 in-game screenshot:
-     name em top y800 (0.741H), divider y853 spanning x435-1484 (0.546W),
-     text em top y867, choice pill left x1193 (38% width), pill height 71px,
-     choice text ~33px, indicator (diamond+triangle) centered at 0.966H */
-  const nameFS   = base * 0.038;
-  const subFS    = base * 0.022;
-  const textFS   = base * 0.036;
-  const choiceFS = base * 0.030;
-  const lineH    = textFS * 1.45;
-
-  /* ----- dialogue block: name fixed at the in-game anchor (0.79H), text flows
-     downward; the block only shifts up when >2 lines would collide with the
-     bottom indicator. Max 5 wrapped lines. ----- */
+  const nameFS = base*0.038, subFS = base*0.022, textFS = base*0.036, choiceFS = base*0.030;
+  const lineH = textFS * 1.45;
   const hasDialog = state.text.trim() || state.name.trim();
-  let textLines = [];
-  let blockTop = H - H * 0.055;           /* top of dialogue block, for band + choices */
-  /* vertical anchors are fixed distances from the BOTTOM edge, scaled like the
-     text itself (base = min(W,H)), so the box sits the same number of pixels
-     above the bottom on any image size or aspect ratio.
-     In-game 1080p reference: name top 280px above bottom; nudged slightly lower. */
-  const NAME_TOP = H - base * 0.235;
-  const TEXT_TOP_NONAME = H - base * 0.175;
-  const MAX_TEXT_BOTTOM = H - base * 0.055; /* keep clear of the bottom indicator */
+  let textLines = [], blockTop = H - H*0.055;
+  const NAME_TOP = H - base*0.235, TEXT_TOP_NONAME = H - base*0.175, MAX_TEXT_BOTTOM = H - base*0.055;
 
   if (hasDialog) {
     ctx.font = `500 ${textFS}px ${FONT_BODY}`;
-    textLines = state.text.trim() ? wrapText(state.text.trim(), W * 0.82) : [];
-    if (textLines.length > 5) {           /* hard cap at 5 lines, ellipsize the last */
-      textLines = textLines.slice(0, 5);
-      textLines[4] = textLines[4].replace(/.$/, "") + "…";
-    }
-    const n = Math.max(textLines.length, 1);
-    const subH = state.subtitle.trim() ? subFS * 0.85 + subFS * 0.75 : 0;
-    const headH = state.name.trim() ? nameFS * 1.30 + subH + textFS * 0.38 : 0;
+    textLines = state.text.trim() ? wrapText(state.text.trim(), W*0.82) : [];
+    if (textLines.length > 5) { textLines = textLines.slice(0,5); textLines[4] = textLines[4].replace(/.$/,"")+"…"; }
+    const n = Math.max(textLines.length,1);
+    const subH = state.subtitle.trim() ? subFS*0.85 + subFS*0.75 : 0;
+    const headH = state.name.trim() ? nameFS*1.30 + subH + textFS*0.38 : 0;
     const textTop = state.name.trim() ? NAME_TOP + headH : TEXT_TOP_NONAME;
-    const overflow = Math.max(0, textTop + n * lineH - MAX_TEXT_BOTTOM);
+    const overflow = Math.max(0, textTop + n*lineH - MAX_TEXT_BOTTOM);
     blockTop = (state.name.trim() ? NAME_TOP : textTop) - overflow;
   }
-
-  /* ----- dialogue darkening, always on. Measured on the in-game 1080p shot:
-     the strip above the name stays bright (~140 luminance) and everything from
-     just above the name down to the bottom edge holds dark (~65-76). ----- */
   if (hasDialog) {
-    const y0 = blockTop - base * 0.045;
+    const y0 = blockTop - base*0.045;
     const g = ctx.createLinearGradient(0, y0, 0, H);
-    g.addColorStop(0, "rgba(10,12,16,0)");
-    g.addColorStop(.28, "rgba(10,12,16,.34)");
-    g.addColorStop(.62, "rgba(10,12,16,.38)");
-    g.addColorStop(1, "rgba(10,12,16,.32)");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, y0, W, H - y0);
+    g.addColorStop(0,"rgba(10,12,16,0)"); g.addColorStop(.28,"rgba(10,12,16,.34)");
+    g.addColorStop(.62,"rgba(10,12,16,.38)"); g.addColorStop(1,"rgba(10,12,16,.32)");
+    ctx.fillStyle = g; ctx.fillRect(0, y0, W, H - y0);
   }
-
-  /* ----- dialogue ----- */
   if (hasDialog) {
     let y = blockTop;
-    ctx.save();
-    ctx.textAlign = "center";
-    ctx.shadowColor = "rgba(0,0,0,.65)"; ctx.shadowBlur = base * 0.010; ctx.shadowOffsetY = base * 0.0025;
-
+    ctx.save(); ctx.textAlign = "center";
+    ctx.shadowColor = "rgba(0,0,0,.65)"; ctx.shadowBlur = base*0.010; ctx.shadowOffsetY = base*0.0025;
     if (state.name.trim()) {
-      ctx.fillStyle = GOLD;
-      ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
-      ctx.textBaseline = "top";
+      ctx.fillStyle = GI_GOLD; ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
       ctx.fillText(state.name.trim(), cx, y);
-      y += nameFS * 1.30 + (state.subtitle.trim() ? subFS * 0.85 : 0);
-      const divW = portrait ? W * 0.80 : W * 0.52;
-      ctx.shadowBlur = 0;
-      drawDivider(cx, y, divW, base, state.subtitle.trim(), subFS);
-      ctx.shadowBlur = base * 0.010;
-      y += state.subtitle.trim() ? subFS * 0.75 + textFS * 0.38 : textFS * 0.38;
+      y += nameFS*1.30 + (state.subtitle.trim() ? subFS*0.85 : 0);
+      const divW = portrait ? W*0.80 : W*0.52;
+      ctx.shadowBlur = 0; drawGIDivider(cx, y, divW, base, state.subtitle.trim(), subFS);
+      ctx.shadowBlur = base*0.010;
+      y += state.subtitle.trim() ? subFS*0.75 + textFS*0.38 : textFS*0.38;
     }
-
-    ctx.fillStyle = TEXT_COL;
-    ctx.font = `500 ${textFS}px ${FONT_BODY}`;
-    ctx.textBaseline = "top";
+    ctx.fillStyle = GI_TEXT; ctx.font = `500 ${textFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
     for (const line of textLines) { ctx.fillText(line, cx, y); y += lineH; }
     ctx.restore();
-
-    /* continue indicator: diamond frame + triangle, bottom-center like in game */
-    if (state.showTri && triImg.complete && triBImg.complete) {
-      const s = base * 0.030;
-      const cyI = H - base * 0.034;
-      ctx.drawImage(triBImg, cx - s / 2, cyI - s / 2, s, s);
-      const tw = s * 0.52, th = tw * (17 / 22);
-      ctx.drawImage(triImg, cx - tw / 2, cyI - th * 0.40, tw, th);
+    if (state.showTri && giTri.complete && giTriB.complete) {
+      const s = base*0.030, cyI = H - base*0.034;
+      ctx.drawImage(giTriB, cx - s/2, cyI - s/2, s, s);
+      const tw = s*0.52, th = tw*(17/22);
+      ctx.drawImage(giTri, cx - tw/2, cyI - th*0.40, tw, th);
     }
   }
-
-  /* ----- choices: uniform-width pills flush to the right edge, stacked bottom-up ----- */
-  const items = state.choices.map(s => s.trim()).filter(Boolean);
-  if (items.length && bubbleImg.complete) {
-    /* in-game 1080p measurements: pill left x1193 (38% of width), 1-line pill
-       h71, icon 48x40 inset 20px, text starts +16 after icon, pill gap 18,
-       stack sits 22px above the name row */
-    const pillW = W * 0.38;
-    const iconH = choiceFS * 1.21, iconW = iconH * (40 / 36);
-    const padV = choiceFS * 0.38, padL = choiceFS * 0.60, gapI = choiceFS * 0.48;
-    const padR = choiceFS * 0.8;
-    const gap = choiceFS * 0.55;
-    const clineH = choiceFS * 1.40;
+  /* choices: right-flush pills */
+  const items = state.choices.map(s=>s.trim()).filter(Boolean);
+  if (items.length && giBubble.complete) {
+    const pillW = W*0.38;
+    const iconH = choiceFS*1.21, iconW = iconH*(40/36);
+    const padV = choiceFS*0.38, padL = choiceFS*0.60, gapI = choiceFS*0.48, padR = choiceFS*0.8;
+    const gap = choiceFS*0.55, clineH = choiceFS*1.40;
     const maxTextW = pillW - padL - iconW - gapI - padR;
-
     ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
-    const measured = items.map(t => {
-      const lines = wrapText(t, maxTextW);
-      return { lines, h: Math.max(clineH + padV * 0.6, lines.length * clineH) + padV * 2 };
-    });
-
-    /* portrait frames get a ~10px extra lift (base 832 -> 10px) */
-    let yBottom = blockTop - base * 0.020 - (portrait ? base * 0.012 : 0);
-    for (let i = measured.length - 1; i >= 0; i--) {
-      const m = measured[i];
-      const h = m.h, top = yBottom - h, r = h / 2;
-      const x0 = W - pillW;
-
+    const measured = items.map(t => { const lines = wrapText(t, maxTextW);
+      return { lines, h: Math.max(clineH + padV*0.6, lines.length*clineH) + padV*2 }; });
+    let yBottom = blockTop - base*0.020 - (portrait ? base*0.012 : 0);
+    for (let i = measured.length-1; i>=0; i--) {
+      const m = measured[i], h = m.h, top = yBottom - h, r = h/2, x0 = W - pillW;
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(x0 + r, top);
-      ctx.lineTo(W + 2, top);
-      ctx.lineTo(W + 2, top + h);
-      ctx.lineTo(x0 + r, top + h);
-      ctx.arc(x0 + r, top + r, r, Math.PI / 2, Math.PI * 1.5);
-      ctx.closePath();
-      /* fill/outline fade measured on the in-game shot: near-opaque navy behind
-         the icon/text, dissolving to almost nothing by ~70% of the pill width */
-      /* fill holds dark through the text zone; the fade is concentrated in the
-         tail so the choice text stays clearly readable, as in game.
-         A tapped choice swaps the navy for the measured in-game gold. */
+      ctx.moveTo(x0+r, top); ctx.lineTo(W+2, top); ctx.lineTo(W+2, top+h); ctx.lineTo(x0+r, top+h);
+      ctx.arc(x0+r, top+r, r, Math.PI/2, Math.PI*1.5); ctx.closePath();
       const selected = i === state.selectedChoice;
       const fc = (selected && state.choiceYellow) ? "196,158,66" : "40,48,66";
-      const fillG = ctx.createLinearGradient(x0, 0, W, 0);
-      fillG.addColorStop(0, `rgba(${fc},.80)`);
-      fillG.addColorStop(.50, `rgba(${fc},.74)`);
-      fillG.addColorStop(.72, `rgba(${fc},.45)`);
-      fillG.addColorStop(.88, `rgba(${fc},.12)`);
-      fillG.addColorStop(1, `rgba(${fc},.03)`);
-      ctx.fillStyle = fillG;
-      ctx.fill();
-      const strokeG = ctx.createLinearGradient(x0, 0, W, 0);
-      if (selected) {
-        /* in-game selection: bright white outline, still fading toward the tail */
-        strokeG.addColorStop(0, "rgba(255,255,255,.95)");
-        strokeG.addColorStop(.55, "rgba(255,255,255,.60)");
-        strokeG.addColorStop(.88, "rgba(255,255,255,0)");
-      } else {
-        strokeG.addColorStop(0, "rgba(205,210,203,.50)");
-        strokeG.addColorStop(.50, "rgba(205,210,203,.30)");
-        strokeG.addColorStop(.82, "rgba(205,210,203,0)");
-      }
-      ctx.strokeStyle = strokeG;
-      ctx.lineWidth = Math.max(1, base * (selected ? 0.0030 : 0.0018));
-      ctx.stroke();
-
-      drawBubbleIcon(x0 + padL, top + (h - iconH) / 2, iconH);
-
-      ctx.fillStyle = CHOICE_TEXT;
-      ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
+      const fillG = ctx.createLinearGradient(x0,0,W,0);
+      fillG.addColorStop(0,`rgba(${fc},.80)`); fillG.addColorStop(.50,`rgba(${fc},.74)`);
+      fillG.addColorStop(.72,`rgba(${fc},.45)`); fillG.addColorStop(.88,`rgba(${fc},.12)`); fillG.addColorStop(1,`rgba(${fc},.03)`);
+      ctx.fillStyle = fillG; ctx.fill();
+      const strokeG = ctx.createLinearGradient(x0,0,W,0);
+      if (selected) { strokeG.addColorStop(0,"rgba(255,255,255,.95)"); strokeG.addColorStop(.55,"rgba(255,255,255,.60)"); strokeG.addColorStop(.88,"rgba(255,255,255,0)"); }
+      else { strokeG.addColorStop(0,"rgba(205,210,203,.50)"); strokeG.addColorStop(.50,"rgba(205,210,203,.30)"); strokeG.addColorStop(.82,"rgba(205,210,203,0)"); }
+      ctx.strokeStyle = strokeG; ctx.lineWidth = Math.max(1, base*(selected?0.0030:0.0018)); ctx.stroke();
+      const bw = iconH*(40/36); ctx.drawImage(giBubble, x0+padL, top+(h-iconH)/2, bw, iconH);
+      ctx.fillStyle = GI_CHOICE_TEXT; ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base * 0.004;
-      const tx = x0 + padL + iconW + gapI;
-      const ty0 = top + h / 2 - (m.lines.length - 1) * clineH / 2;
-      m.lines.forEach((l, j) => ctx.fillText(l, tx, ty0 + j * clineH));
+      ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.004;
+      const tx = x0+padL+bw+gapI, ty0 = top + h/2 - (m.lines.length-1)*clineH/2;
+      m.lines.forEach((l,j)=>ctx.fillText(l, tx, ty0 + j*clineH));
       ctx.restore();
-
       yBottom = top - gap;
     }
   }
 }
 
+/* =======================================================================
+   HONKAI: STAR RAIL renderer
+   ======================================================================= */
+function drawHSRDivider(cx, y, width, base) {
+  /* thin gold line with a small centered ornament (arc + dots) */
+  ctx.save();
+  ctx.strokeStyle = "rgba(215,190,142,.85)"; ctx.fillStyle = "rgba(215,190,142,.9)";
+  const th = Math.max(1, base*0.0016);
+  ctx.lineWidth = th;
+  const x0 = cx - width/2, x1 = cx + width/2;
+  const ornR = base*0.012;
+  ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(cx - ornR*1.6, y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + ornR*1.6, y); ctx.lineTo(x1, y); ctx.stroke();
+  /* centered shallow arc (concave down) with a dot */
+  ctx.lineWidth = Math.max(1, base*0.0018);
+  ctx.beginPath(); ctx.arc(cx, y - ornR*0.15, ornR*0.72, Math.PI*0.18, Math.PI*0.82, false); ctx.stroke();
+  drawDiamond(cx, y + ornR*0.18, base*0.0022, "rgba(240,225,190,.95)");
+  drawDiamond(cx - ornR*1.5, y, base*0.0020, "rgba(215,190,142,.9)");
+  drawDiamond(cx + ornR*1.5, y, base*0.0020, "rgba(215,190,142,.9)");
+  ctx.restore();
+}
+function renderHSR(base, portrait, cx) {
+  const { W, H } = state;
+  const nameFS = base*0.036, textFS = base*0.034, choiceFS = base*0.028;
+  const lineH = textFS*1.45;
+  const hasDialog = state.text.trim() || state.name.trim();
+  let textLines = [], blockTop = H - H*0.055;
+  const NAME_TOP = H - base*0.235, TEXT_TOP_NONAME = H - base*0.175, MAX_TEXT_BOTTOM = H - base*0.055;
+
+  if (hasDialog) {
+    ctx.font = `500 ${textFS}px ${FONT_BODY}`;
+    textLines = state.text.trim() ? wrapText(state.text.trim(), W*0.80) : [];
+    if (textLines.length > 5) { textLines = textLines.slice(0,5); textLines[4] = textLines[4].replace(/.$/,"")+"…"; }
+    const n = Math.max(textLines.length,1);
+    const headH = state.name.trim() ? nameFS*1.28 + textFS*0.42 : 0;
+    const textTop = state.name.trim() ? NAME_TOP + headH : TEXT_TOP_NONAME;
+    const overflow = Math.max(0, textTop + n*lineH - MAX_TEXT_BOTTOM);
+    blockTop = (state.name.trim() ? NAME_TOP : textTop) - overflow;
+  }
+  /* soft dark gradient at the very bottom (HSR is subtle) */
+  if (hasDialog) {
+    const y0 = blockTop - base*0.05;
+    const g = ctx.createLinearGradient(0, y0, 0, H);
+    g.addColorStop(0,"rgba(8,10,14,0)"); g.addColorStop(.5,"rgba(8,10,14,.24)"); g.addColorStop(1,"rgba(8,10,14,.30)");
+    ctx.fillStyle = g; ctx.fillRect(0, y0, W, H - y0);
+  }
+  if (hasDialog) {
+    let y = blockTop;
+    ctx.save(); ctx.textAlign = "center";
+    ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = base*0.010; ctx.shadowOffsetY = base*0.0022;
+    if (state.name.trim()) {
+      ctx.fillStyle = HSR_GOLD; ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
+      ctx.fillText(state.name.trim(), cx, y);
+      y += nameFS*1.28;
+      ctx.shadowBlur = 0; drawHSRDivider(cx, y, W*0.46, base); ctx.shadowBlur = base*0.010;
+      y += textFS*0.42;
+    }
+    ctx.fillStyle = HSR_TEXT; ctx.font = `500 ${textFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
+    for (const line of textLines) { ctx.fillText(line, cx, y); y += lineH; }
+    ctx.restore();
+    /* continue chevron (TalkTextNextIcon) bottom-center */
+    if (state.showTri && hsrNext.complete) {
+      const w = base*0.026, h = w*(12/26), cyI = H - base*0.030;
+      ctx.drawImage(hsrNext, cx - w/2, cyI - h/2, w, h);
+    }
+  }
+  /* choices: right side, vertically centered on the upper-right; icon column +
+     thin separator + left-aligned white text; subtle bg; selected = light bar */
+  const items = state.choices.map((s,i)=>({t:s.trim(), icon: state.choiceIcons[i]||"continue"})).filter(o=>o.t);
+  if (items.length) {
+    const rightMargin = W*0.05;
+    const blockW = Math.min(W*0.34, Math.max(W*0.24, base*0.42));
+    const x1 = W - rightMargin;              /* block right edge */
+    const x0 = x1 - blockW;                  /* block left edge (icon column) */
+    const iconBox = choiceFS*1.15;
+    const gapI = choiceFS*0.55, sepGap = choiceFS*0.42;
+    const padV = choiceFS*0.42, rowGap = choiceFS*0.75;
+    const clineH = choiceFS*1.4;
+    const textLeft = x0 + iconBox + gapI;
+    const maxTextW = x1 - textLeft - choiceFS*0.3;
+
+    ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
+    const rows = items.map(o => { const lines = wrapText(o.t, maxTextW);
+      return { ...o, lines, h: Math.max(iconBox, lines.length*clineH) + padV*2 }; });
+    const totalH = rows.reduce((a,r)=>a+r.h, 0) + rowGap*(rows.length-1);
+    let y = H*0.46 - totalH/2;                /* vertically centered upper-right */
+    if (y < base*0.06) y = base*0.06;
+    for (let i=0;i<rows.length;i++) {
+      const r = rows[i], top = y, h = r.h, mid = top + h/2;
+      const selected = i === state.selectedChoice;
+      /* selected: light translucent bar to the right edge */
+      if (selected) {
+        const g = ctx.createLinearGradient(x0,0,x1,0);
+        g.addColorStop(0,"rgba(236,236,236,.05)"); g.addColorStop(.25,"rgba(236,236,236,.26)"); g.addColorStop(1,"rgba(236,236,236,.30)");
+        ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
+      } else {
+        /* very subtle dark backing */
+        const g = ctx.createLinearGradient(x0,0,x1,0);
+        g.addColorStop(0,"rgba(10,12,16,.0)"); g.addColorStop(.5,"rgba(10,12,16,.14)"); g.addColorStop(1,"rgba(10,12,16,.20)");
+        ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
+      }
+      /* icon */
+      const im = hsrImg[r.icon] || hsrImg.continue, meta = A_HSR[r.icon] || A_HSR.continue;
+      const ih = iconBox, iw = ih*(meta.w/meta.h);
+      if (im.complete) ctx.drawImage(im, x0 + (iconBox-iw)/2, mid - ih/2, iw, ih);
+      /* thin vertical separator */
+      ctx.strokeStyle = "rgba(230,230,230,.35)"; ctx.lineWidth = Math.max(1, base*0.0012);
+      ctx.beginPath(); ctx.moveTo(x0 + iconBox + gapI - sepGap, top + h*0.22); ctx.lineTo(x0 + iconBox + gapI - sepGap, top + h*0.78); ctx.stroke();
+      /* text */
+      ctx.fillStyle = selected ? "#ffffff" : HSR_CHOICE_TEXT;
+      ctx.font = `500 ${choiceFS}px ${FONT_BODY}`; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base*0.004;
+      const ty0 = mid - (r.lines.length-1)*clineH/2;
+      r.lines.forEach((l,j)=>ctx.fillText(l, textLeft, ty0 + j*clineH));
+      ctx.restore();
+      y += h + rowGap;
+    }
+  }
+}
+
+/* ---------- top-level render ---------- */
+function render() {
+  const { W, H } = state;
+  canvas.width = W; canvas.height = H;
+  if (state.img) {
+    ctx.drawImage(state.img, 0, 0, W, H);
+  } else {
+    const g = ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,"#2a3547"); g.addColorStop(.6,"#1a2230"); g.addColorStop(1,"#11151d");
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    ctx.save(); ctx.fillStyle = "rgba(236,229,216,.28)";
+    ctx.font = `500 ${Math.round(Math.min(W,H)*0.032)}px ${FONT_BODY}`; ctx.textAlign = "center";
+    ctx.fillText("이미지를 업로드하면 여기에 표시됩니다", W/2, H*0.38); ctx.restore();
+  }
+  const base = Math.min(W,H) * state.scale;
+  const portrait = H >= W, cx = W/2;
+  if (state.game === "hsr") renderHSR(base, portrait, cx);
+  else renderGI(base, portrait, cx);
+}
+
 /* ---------- UI wiring ---------- */
 const $ = id => document.getElementById(id);
 
+$("gameSel").addEventListener("change", () => {
+  state.game = $("gameSel").value;
+  document.body.dataset.game = state.game;
+  render();
+});
+
 $("fileBtn").addEventListener("click", () => $("file").click());
 $("file").addEventListener("change", e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const url = URL.createObjectURL(f);
-  const img = new Image();
+  const f = e.target.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f); const img = new Image();
   img.onload = () => {
     state.img = img; state.W = img.naturalWidth; state.H = img.naturalHeight;
     const portrait = state.H >= state.W;
     $("dims").textContent = `${state.W} × ${state.H} · ${portrait ? "세로형" : "가로형"} 자동 배치`;
-    $("clearImg").hidden = false;
-    URL.revokeObjectURL(url);
-    render();
+    $("clearImg").hidden = false; URL.revokeObjectURL(url); render();
   };
   img.src = url;
 });
 $("clearImg").addEventListener("click", () => {
   state.img = null; state.W = 1280; state.H = 720;
-  $("file").value = "";
-  $("dims").textContent = "아직 업로드 안 됨 — 기본 캔버스 1280×720";
-  $("clearImg").hidden = true;
-  render();
+  $("file").value = ""; $("dims").textContent = "아직 업로드 안 됨 — 기본 캔버스 1280×720";
+  $("clearImg").hidden = true; render();
 });
 
-for (const id of ["name", "subtitle", "text"]) {
+for (const id of ["name","subtitle","text"]) {
   $(id).addEventListener("input", () => { state[id] = $(id).value; render(); });
   state[id] = $(id).value;
 }
+$("clearText").addEventListener("click", () => { $("text").value = ""; state.text = ""; render(); });
 $("showTri").addEventListener("change", () => { state.showTri = $("showTri").checked; render(); });
 $("choiceYellow").addEventListener("change", () => { state.choiceYellow = $("choiceYellow").checked; render(); });
-$("scale").addEventListener("input", () => {
-  state.scale = parseFloat($("scale").value);
-  $("scaleVal").textContent = state.scale.toFixed(2);
-  render();
-});
+$("scale").addEventListener("input", () => { state.scale = parseFloat($("scale").value); $("scaleVal").textContent = state.scale.toFixed(2); render(); });
 
-/* font file loading */
+/* font loading */
 let userFontFace = null;
 $("fontBtn").addEventListener("click", () => $("fontFile").click());
 $("fontFile").addEventListener("change", async e => {
-  const f = e.target.files[0];
-  if (!f) return;
+  const f = e.target.files[0]; if (!f) return;
   try {
-    const face = new FontFace("GenshinUserFont", await f.arrayBuffer());
-    await face.load();
+    const face = new FontFace("UserFont", await f.arrayBuffer()); await face.load();
     if (userFontFace) document.fonts.delete(userFontFace);
-    document.fonts.add(face);
-    userFontFace = face;
-    FONT_BODY = '"GenshinUserFont",' + BASE_FONTS;
-    $("fontStatus").textContent = "사용 중: " + f.name;
-    $("fontReset").hidden = false;
-    render();
-  } catch (err) {
-    $("fontStatus").textContent = "폰트를 읽지 못했어요: " + f.name;
-  }
+    document.fonts.add(face); userFontFace = face;
+    FONT_BODY = '"UserFont",' + BASE_FONTS;
+    $("fontStatus").textContent = "사용 중: " + f.name; $("fontReset").hidden = false; render();
+  } catch (err) { $("fontStatus").textContent = "폰트를 읽지 못했어요: " + f.name; }
 });
 $("fontReset").addEventListener("click", () => {
   if (userFontFace) { document.fonts.delete(userFontFace); userFontFace = null; }
-  FONT_BODY = BASE_FONTS;
-  $("fontFile").value = "";
-  $("fontStatus").textContent = "기본: Noto Sans KR (근사)";
-  $("fontReset").hidden = true;
-  render();
-});
-
-$("clearText").addEventListener("click", () => {
-  $("text").value = ""; state.text = "";
-  render();
+  FONT_BODY = BASE_FONTS; $("fontFile").value = "";
+  $("fontStatus").textContent = "기본: Noto Sans KR (근사)"; $("fontReset").hidden = true; render();
 });
 
 /* choices list */
 function syncChoices() {
   const rows = [...document.querySelectorAll("#choices .choice-row")];
-  state.choices = rows.map(r => r.querySelector("input").value);
+  state.choices = rows.map(r => r.querySelector("input[type=text]").value);
+  state.choiceIcons = rows.map(r => r.querySelector("select.iconSel").value);
   state.selectedChoice = rows.findIndex(r => r.classList.contains("selected"));
   render();
 }
-function addChoiceRow(value) {
+function addChoiceRow(value, iconType) {
   const row = document.createElement("div");
   row.className = "choice-row";
   const sel = document.createElement("button");
   sel.type = "button"; sel.className = "sel"; sel.textContent = "○";
-  sel.title = "선택된 상태로 표시 (흰 테두리)"; sel.setAttribute("aria-label", "선택 표시");
+  sel.title = "선택된 상태로 표시"; sel.setAttribute("aria-label","선택 표시");
   sel.addEventListener("click", () => {
     const was = row.classList.contains("selected");
-    document.querySelectorAll("#choices .choice-row").forEach(r => {
-      r.classList.remove("selected");
-      r.querySelector(".sel").textContent = "○";
-    });
+    document.querySelectorAll("#choices .choice-row").forEach(r => { r.classList.remove("selected"); r.querySelector(".sel").textContent = "○"; });
     if (!was) { row.classList.add("selected"); sel.textContent = "●"; }
     syncChoices();
   });
+  const icon = document.createElement("select");
+  icon.className = "iconSel hsr-only";
+  for (const k in HSR_ICON_LABELS) { const o = document.createElement("option"); o.value = k; o.textContent = HSR_ICON_LABELS[k]; icon.append(o); }
+  icon.value = iconType || "continue";
+  icon.addEventListener("change", syncChoices);
   const input = document.createElement("input");
   input.type = "text"; input.placeholder = "선택지 내용"; input.value = value || "";
   input.addEventListener("input", syncChoices);
   const del = document.createElement("button");
-  del.type = "button"; del.textContent = "✕"; del.setAttribute("aria-label", "선택지 삭제");
+  del.type = "button"; del.textContent = "✕"; del.setAttribute("aria-label","선택지 삭제");
   del.addEventListener("click", () => { row.remove(); syncChoices(); });
-  row.append(sel, input, del);
+  row.append(sel, icon, input, del);
   $("choices").append(row);
 }
-$("addChoice").addEventListener("click", () => { addChoiceRow(""); syncChoices(); });
-addChoiceRow("'폭풍의 신'…?");
-addChoiceRow("잠깐, 방금 '자기 신전'이라고 말한 거야?");
+$("addChoice").addEventListener("click", () => { addChoiceRow("", "continue"); syncChoices(); });
+addChoiceRow("'폭풍의 신'…?", "continue");
+addChoiceRow("잠깐, 방금 '자기 신전'이라고 말한 거야?", "talk");
 syncChoices();
 
 /* save */
@@ -583,17 +630,16 @@ $("save").addEventListener("click", () => {
   canvas.toBlob(blob => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "genshin_dialog.png";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    a.download = (state.game === "hsr" ? "hsr" : "genshin") + "_dialog.png";
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   }, "image/png");
 });
 
-/* first paint: after fonts & assets */
+/* first paint after fonts + assets settle */
+const allImgs = [giBubble, giTri, giTriB, hsrNext, ...Object.values(hsrImg)];
 Promise.all([
-  document.fonts ? document.fonts.load(`700 20px "Noto Sans KR"`).catch(() => {}) : Promise.resolve(),
-  new Promise(res => bubbleImg.complete ? res() : bubbleImg.addEventListener("load", res)),
-  new Promise(res => triImg.complete ? res() : triImg.addEventListener("load", res)),
+  document.fonts ? document.fonts.load(`700 20px "Noto Sans KR"`).catch(()=>{}) : Promise.resolve(),
+  ...allImgs.map(im => new Promise(res => im.complete ? res() : im.addEventListener("load", res))),
 ]).then(render);
 render();
 </script>
