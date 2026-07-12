@@ -445,7 +445,7 @@ function renderHSR(base, portrait, cx) {
   if (hasDialog) {
     let y = blockTop;
     ctx.save(); ctx.textAlign = "center";
-    ctx.shadowColor = "rgba(0,0,0,.1)"; ctx.shadowBlur = base*0.010; ctx.shadowOffsetY = base*0.0022;
+    ctx.shadowColor = "rgba(0,0,0,.2)"; ctx.shadowBlur = base*0.010; ctx.shadowOffsetY = base*0.0022;
     if (state.name.trim()) {
       ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
       ctx.lineJoin = "round"; ctx.miterLimit = 2;
@@ -506,7 +506,7 @@ function renderHSR(base, portrait, cx) {
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       } else {
         const g = ctx.createLinearGradient(x0,0,x1,0);
-        g.addColorStop(0,"rgba(14,17,25,.40)"); g.addColorStop(.80,"rgba(14,17,25,.38)");
+        g.addColorStop(0,"rgba(14,17,25,.45)"); g.addColorStop(.80,"rgba(14,17,25,.43)");
         g.addColorStop(1,"rgba(14,17,25,0)");
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       }
@@ -553,6 +553,21 @@ function render() {
 const $ = id => document.getElementById(id);
 
 const DEFAULT_NAMES = { gi: "페이몬", hsr: "삼칠이" };
+const DEFAULT_CHOICES = {
+  gi: [["'폭풍의 신'…?", "continue"], ["잠깐, 방금 '자기 신전'이라고 말한 거야?", "talk"]],
+  hsr: [["당신이 바로 소문으로만 듣던…", "missionGold"], ["궁금한 게 있어…", "talk"], ["더 궁금한 거 없어", "exit"]],
+};
+function choiceRowsMatch(defs) {
+  const rows = [...document.querySelectorAll("#choices .choice-row")];
+  if (rows.length !== defs.length) return false;
+  return rows.every((r, i) => r.querySelector("input[type=text]").value === defs[i][0]
+    && r.querySelector("select.iconSel").value === defs[i][1]);
+}
+function setChoiceRows(defs) {
+  $("choices").innerHTML = "";
+  for (const [t, ic] of defs) addChoiceRow(t, ic);
+  syncChoices();
+}
 $("gameSel").addEventListener("change", () => {
   const prev = state.game;
   state.game = $("gameSel").value;
@@ -564,6 +579,8 @@ $("gameSel").addEventListener("change", () => {
     state.name = nameEl.value;
   }
   nameEl.placeholder = "예: " + DEFAULT_NAMES[state.game];
+  /* swap the sample choices only if they're still the untouched defaults */
+  if (choiceRowsMatch(DEFAULT_CHOICES[prev])) setChoiceRows(DEFAULT_CHOICES[state.game]);
   render();
 });
 
@@ -649,9 +666,7 @@ function addChoiceRow(value, iconType) {
   $("choices").append(row);
 }
 $("addChoice").addEventListener("click", () => { addChoiceRow("", "continue"); syncChoices(); });
-addChoiceRow("'폭풍의 신'…?", "continue");
-addChoiceRow("잠깐, 방금 '자기 신전'이라고 말한 거야?", "talk");
-syncChoices();
+setChoiceRows(DEFAULT_CHOICES.gi);
 
 /* save */
 $("save").addEventListener("click", () => {
