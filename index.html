@@ -159,6 +159,10 @@ body[data-game="hsr"] .choice-row .iconSel { display:block; }
         <input type="checkbox" id="choiceYellow">
         <label for="choiceYellow">선택 표시(●) 노란 배경 (클릭 효과)</label>
       </div>
+      <div class="row gi-only" style="margin-top:6px">
+        <input type="checkbox" id="choiceTextYellow">
+        <label for="choiceTextYellow">선택 표시(●) 노란 글씨</label>
+      </div>
       <p class="hint">선택지 왼쪽 ● 를 누르면 그 항목이 "선택된" 상태로 표시됩니다.
       비워두면 표시되지 않아요.</p>
     </fieldset>
@@ -226,7 +230,7 @@ const state = {
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
   choices: [], choiceIcons: [],
-  showTri: true, choiceYellow: false, scale: 1, selectedChoice: -1,
+  showTri: true, choiceYellow: false, choiceTextYellow: false, scale: 1, selectedChoice: -1,
 };
 
 const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
@@ -380,7 +384,8 @@ function renderGI(base, portrait, cx) {
       else { strokeG.addColorStop(0,"rgba(205,210,203,.50)"); strokeG.addColorStop(.50,"rgba(205,210,203,.30)"); strokeG.addColorStop(.82,"rgba(205,210,203,0)"); }
       ctx.strokeStyle = strokeG; ctx.lineWidth = Math.max(1, base*(selected?0.0030:0.0018)); ctx.stroke();
       const bw = iconH*(40/36); ctx.drawImage(giBubble, x0+padL, top+(h-iconH)/2, bw, iconH);
-      ctx.fillStyle = GI_CHOICE_TEXT; ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
+      ctx.fillStyle = (selected && state.choiceTextYellow) ? "#ffd76a" : GI_CHOICE_TEXT;
+      ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.004;
       const tx = x0+padL+bw+gapI, ty0 = top + h/2 - (m.lines.length-1)*clineH/2;
@@ -442,14 +447,23 @@ function renderHSR(base, portrait, cx) {
     ctx.save(); ctx.textAlign = "center";
     ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = base*0.010; ctx.shadowOffsetY = base*0.0022;
     if (state.name.trim()) {
-      ctx.fillStyle = HSR_GOLD; ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
-      ctx.fillText(state.name.trim(), cx, y);
+      ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
+      ctx.lineJoin = "round"; ctx.miterLimit = 2;
+      ctx.strokeStyle = "rgba(0,0,0,.8)"; ctx.lineWidth = Math.max(1.2, nameFS*0.07);
+      ctx.strokeText(state.name.trim(), cx, y);
+      ctx.fillStyle = HSR_GOLD; ctx.fillText(state.name.trim(), cx, y);
       y += nameFS*1.28;
       ctx.shadowBlur = 0; drawHSRDivider(cx, y, W*0.46, base); ctx.shadowBlur = base*0.010;
       y += textFS*0.42;
     }
-    ctx.fillStyle = HSR_TEXT; ctx.font = `500 ${textFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
-    for (const line of textLines) { ctx.fillText(line, cx, y); y += lineH; }
+    ctx.font = `500 ${textFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
+    ctx.lineJoin = "round"; ctx.miterLimit = 2;
+    ctx.strokeStyle = "rgba(0,0,0,.8)"; ctx.lineWidth = Math.max(1, textFS*0.06);
+    for (const line of textLines) {
+      ctx.strokeText(line, cx, y);
+      ctx.fillStyle = HSR_TEXT; ctx.fillText(line, cx, y);
+      y += lineH;
+    }
     ctx.restore();
     /* continue chevron (TalkTextNextIcon) bottom-center */
     if (state.showTri && hsrNext.complete) {
@@ -461,7 +475,7 @@ function renderHSR(base, portrait, cx) {
      thin separator + left-aligned white text; subtle bg; selected = light bar */
   const items = state.choices.map((s,i)=>({t:s.trim(), icon: state.choiceIcons[i]||"continue"})).filter(o=>o.t);
   if (items.length) {
-    const rightMargin = W*0.05;
+    const rightMargin = portrait ? W*0.015 : W*0.05;  /* portrait sits further right */
     const blockW = Math.min(W*0.34, Math.max(W*0.24, base*0.42));
     const x1 = W - rightMargin;              /* block right edge */
     const x0 = x1 - blockW;                  /* block left edge (icon column) */
@@ -476,20 +490,24 @@ function renderHSR(base, portrait, cx) {
     const rows = items.map(o => { const lines = wrapText(o.t, maxTextW);
       return { ...o, lines, h: Math.max(iconBox, lines.length*clineH) + padV*2 }; });
     const totalH = rows.reduce((a,r)=>a+r.h, 0) + rowGap*(rows.length-1);
-    let y = H*0.46 - totalH/2;                /* vertically centered upper-right */
+    /* GI-style anchor (stack ends just above the dialogue block), lifted 10%H */
+    let y = blockTop - base*0.020 - H*0.05 - totalH;
     if (y < base*0.06) y = base*0.06;
     for (let i=0;i<rows.length;i++) {
       const r = rows[i], top = y, h = r.h, mid = top + h/2;
       const selected = i === state.selectedChoice;
       /* selected: light translucent bar to the right edge */
+      /* bar stays solid through the icon/text, then only the right END fades
+         out to transparent, as in game */
       if (selected) {
         const g = ctx.createLinearGradient(x0,0,x1,0);
-        g.addColorStop(0,"rgba(236,236,236,.05)"); g.addColorStop(.25,"rgba(236,236,236,.26)"); g.addColorStop(1,"rgba(236,236,236,.30)");
+        g.addColorStop(0,"rgba(238,238,238,.42)"); g.addColorStop(.60,"rgba(238,238,238,.40)");
+        g.addColorStop(.82,"rgba(238,238,238,.18)"); g.addColorStop(1,"rgba(238,238,238,0)");
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       } else {
-        /* very subtle dark backing */
         const g = ctx.createLinearGradient(x0,0,x1,0);
-        g.addColorStop(0,"rgba(10,12,16,.0)"); g.addColorStop(.5,"rgba(10,12,16,.14)"); g.addColorStop(1,"rgba(10,12,16,.20)");
+        g.addColorStop(0,"rgba(14,17,25,.60)"); g.addColorStop(.60,"rgba(14,17,25,.58)");
+        g.addColorStop(.82,"rgba(14,17,25,.28)"); g.addColorStop(1,"rgba(14,17,25,0)");
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       }
       /* icon */
@@ -534,9 +552,18 @@ function render() {
 /* ---------- UI wiring ---------- */
 const $ = id => document.getElementById(id);
 
+const DEFAULT_NAMES = { gi: "페이몬", hsr: "삼칠이" };
 $("gameSel").addEventListener("change", () => {
+  const prev = state.game;
   state.game = $("gameSel").value;
   document.body.dataset.game = state.game;
+  /* swap the default speaker name, but never clobber a user-typed name */
+  const nameEl = $("name");
+  if (!nameEl.value.trim() || nameEl.value === DEFAULT_NAMES[prev]) {
+    nameEl.value = DEFAULT_NAMES[state.game];
+    state.name = nameEl.value;
+  }
+  nameEl.placeholder = "예: " + DEFAULT_NAMES[state.game];
   render();
 });
 
@@ -565,6 +592,7 @@ for (const id of ["name","subtitle","text"]) {
 $("clearText").addEventListener("click", () => { $("text").value = ""; state.text = ""; render(); });
 $("showTri").addEventListener("change", () => { state.showTri = $("showTri").checked; render(); });
 $("choiceYellow").addEventListener("change", () => { state.choiceYellow = $("choiceYellow").checked; render(); });
+$("choiceTextYellow").addEventListener("change", () => { state.choiceTextYellow = $("choiceTextYellow").checked; render(); });
 $("scale").addEventListener("input", () => { state.scale = parseFloat($("scale").value); $("scaleVal").textContent = state.scale.toFixed(2); render(); });
 
 /* font loading */
