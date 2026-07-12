@@ -159,6 +159,10 @@ body[data-game="hsr"] .choice-row .iconSel { display:block; }
         <input type="checkbox" id="choiceYellow">
         <label for="choiceYellow">선택 표시(●) 노란 배경 (클릭 효과)</label>
       </div>
+      <div class="row gi-only" style="margin-top:6px">
+        <input type="checkbox" id="choiceTextYellow">
+        <label for="choiceTextYellow">선택 표시(●) 노란 글씨</label>
+      </div>
       <p class="hint">선택지 왼쪽 ● 를 누르면 그 항목이 "선택된" 상태로 표시됩니다.
       비워두면 표시되지 않아요.</p>
     </fieldset>
@@ -226,7 +230,7 @@ const state = {
   img: null, W: 1280, H: 720,
   name: "", subtitle: "", text: "",
   choices: [], choiceIcons: [],
-  showTri: true, choiceYellow: false, scale: 1, selectedChoice: -1,
+  showTri: true, choiceYellow: false, choiceTextYellow: false, scale: 1, selectedChoice: -1,
 };
 
 const BASE_FONTS = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
@@ -380,7 +384,8 @@ function renderGI(base, portrait, cx) {
       else { strokeG.addColorStop(0,"rgba(205,210,203,.50)"); strokeG.addColorStop(.50,"rgba(205,210,203,.30)"); strokeG.addColorStop(.82,"rgba(205,210,203,0)"); }
       ctx.strokeStyle = strokeG; ctx.lineWidth = Math.max(1, base*(selected?0.0030:0.0018)); ctx.stroke();
       const bw = iconH*(40/36); ctx.drawImage(giBubble, x0+padL, top+(h-iconH)/2, bw, iconH);
-      ctx.fillStyle = GI_CHOICE_TEXT; ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
+      ctx.fillStyle = (selected && state.choiceTextYellow) ? "#ffd76a" : GI_CHOICE_TEXT;
+      ctx.font = `500 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.004;
       const tx = x0+padL+bw+gapI, ty0 = top + h/2 - (m.lines.length-1)*clineH/2;
@@ -476,7 +481,8 @@ function renderHSR(base, portrait, cx) {
     const rows = items.map(o => { const lines = wrapText(o.t, maxTextW);
       return { ...o, lines, h: Math.max(iconBox, lines.length*clineH) + padV*2 }; });
     const totalH = rows.reduce((a,r)=>a+r.h, 0) + rowGap*(rows.length-1);
-    let y = H*0.46 - totalH/2;                /* vertically centered upper-right */
+    /* GI-style anchor (stack ends just above the dialogue block), lifted 10%H */
+    let y = blockTop - base*0.020 - H*0.10 - totalH;
     if (y < base*0.06) y = base*0.06;
     for (let i=0;i<rows.length;i++) {
       const r = rows[i], top = y, h = r.h, mid = top + h/2;
@@ -534,9 +540,18 @@ function render() {
 /* ---------- UI wiring ---------- */
 const $ = id => document.getElementById(id);
 
+const DEFAULT_NAMES = { gi: "페이몬", hsr: "삼칠이" };
 $("gameSel").addEventListener("change", () => {
+  const prev = state.game;
   state.game = $("gameSel").value;
   document.body.dataset.game = state.game;
+  /* swap the default speaker name, but never clobber a user-typed name */
+  const nameEl = $("name");
+  if (!nameEl.value.trim() || nameEl.value === DEFAULT_NAMES[prev]) {
+    nameEl.value = DEFAULT_NAMES[state.game];
+    state.name = nameEl.value;
+  }
+  nameEl.placeholder = "예: " + DEFAULT_NAMES[state.game];
   render();
 });
 
@@ -565,6 +580,7 @@ for (const id of ["name","subtitle","text"]) {
 $("clearText").addEventListener("click", () => { $("text").value = ""; state.text = ""; render(); });
 $("showTri").addEventListener("change", () => { state.showTri = $("showTri").checked; render(); });
 $("choiceYellow").addEventListener("change", () => { state.choiceYellow = $("choiceYellow").checked; render(); });
+$("choiceTextYellow").addEventListener("change", () => { state.choiceTextYellow = $("choiceTextYellow").checked; render(); });
 $("scale").addEventListener("input", () => { state.scale = parseFloat($("scale").value); $("scaleVal").textContent = state.scale.toFixed(2); render(); });
 
 /* font loading */
