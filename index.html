@@ -447,14 +447,23 @@ function renderHSR(base, portrait, cx) {
     ctx.save(); ctx.textAlign = "center";
     ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = base*0.010; ctx.shadowOffsetY = base*0.0022;
     if (state.name.trim()) {
-      ctx.fillStyle = HSR_GOLD; ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
-      ctx.fillText(state.name.trim(), cx, y);
+      ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
+      ctx.lineJoin = "round"; ctx.miterLimit = 2;
+      ctx.strokeStyle = "rgba(0,0,0,.85)"; ctx.lineWidth = Math.max(2, nameFS*0.14);
+      ctx.strokeText(state.name.trim(), cx, y);
+      ctx.fillStyle = HSR_GOLD; ctx.fillText(state.name.trim(), cx, y);
       y += nameFS*1.28;
       ctx.shadowBlur = 0; drawHSRDivider(cx, y, W*0.46, base); ctx.shadowBlur = base*0.010;
       y += textFS*0.42;
     }
-    ctx.fillStyle = HSR_TEXT; ctx.font = `500 ${textFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
-    for (const line of textLines) { ctx.fillText(line, cx, y); y += lineH; }
+    ctx.font = `500 ${textFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
+    ctx.lineJoin = "round"; ctx.miterLimit = 2;
+    ctx.strokeStyle = "rgba(0,0,0,.85)"; ctx.lineWidth = Math.max(2, textFS*0.13);
+    for (const line of textLines) {
+      ctx.strokeText(line, cx, y);
+      ctx.fillStyle = HSR_TEXT; ctx.fillText(line, cx, y);
+      y += lineH;
+    }
     ctx.restore();
     /* continue chevron (TalkTextNextIcon) bottom-center */
     if (state.showTri && hsrNext.complete) {
@@ -466,7 +475,7 @@ function renderHSR(base, portrait, cx) {
      thin separator + left-aligned white text; subtle bg; selected = light bar */
   const items = state.choices.map((s,i)=>({t:s.trim(), icon: state.choiceIcons[i]||"continue"})).filter(o=>o.t);
   if (items.length) {
-    const rightMargin = W*0.05;
+    const rightMargin = portrait ? W*0.015 : W*0.05;  /* portrait sits further right */
     const blockW = Math.min(W*0.34, Math.max(W*0.24, base*0.42));
     const x1 = W - rightMargin;              /* block right edge */
     const x0 = x1 - blockW;                  /* block left edge (icon column) */
