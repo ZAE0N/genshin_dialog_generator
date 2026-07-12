@@ -482,7 +482,7 @@ function renderHSR(base, portrait, cx) {
       return { ...o, lines, h: Math.max(iconBox, lines.length*clineH) + padV*2 }; });
     const totalH = rows.reduce((a,r)=>a+r.h, 0) + rowGap*(rows.length-1);
     /* GI-style anchor (stack ends just above the dialogue block), lifted 10%H */
-    let y = blockTop - base*0.020 - H*0.10 - totalH;
+    let y = blockTop - base*0.020 - H*0.05 - totalH;
     if (y < base*0.06) y = base*0.06;
     for (let i=0;i<rows.length;i++) {
       const r = rows[i], top = y, h = r.h, mid = top + h/2;
@@ -490,12 +490,12 @@ function renderHSR(base, portrait, cx) {
       /* selected: light translucent bar to the right edge */
       if (selected) {
         const g = ctx.createLinearGradient(x0,0,x1,0);
-        g.addColorStop(0,"rgba(236,236,236,.05)"); g.addColorStop(.25,"rgba(236,236,236,.26)"); g.addColorStop(1,"rgba(236,236,236,.30)");
+        g.addColorStop(0,"rgba(238,238,238,.10)"); g.addColorStop(.25,"rgba(238,238,238,.34)"); g.addColorStop(1,"rgba(238,238,238,.40)");
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       } else {
         /* very subtle dark backing */
         const g = ctx.createLinearGradient(x0,0,x1,0);
-        g.addColorStop(0,"rgba(10,12,16,.0)"); g.addColorStop(.5,"rgba(10,12,16,.14)"); g.addColorStop(1,"rgba(10,12,16,.20)");
+        g.addColorStop(0,"rgba(14,17,25,.62)"); g.addColorStop(.62,"rgba(14,17,25,.58)"); g.addColorStop(1,"rgba(14,17,25,.44)");
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       }
       /* icon */
