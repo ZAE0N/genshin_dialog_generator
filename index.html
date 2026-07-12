@@ -449,7 +449,7 @@ function renderHSR(base, portrait, cx) {
     if (state.name.trim()) {
       ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
       ctx.lineJoin = "round"; ctx.miterLimit = 2;
-      ctx.strokeStyle = "rgba(0,0,0,.85)"; ctx.lineWidth = Math.max(2, nameFS*0.14);
+      ctx.strokeStyle = "rgba(0,0,0,.8)"; ctx.lineWidth = Math.max(1.2, nameFS*0.07);
       ctx.strokeText(state.name.trim(), cx, y);
       ctx.fillStyle = HSR_GOLD; ctx.fillText(state.name.trim(), cx, y);
       y += nameFS*1.28;
@@ -458,7 +458,7 @@ function renderHSR(base, portrait, cx) {
     }
     ctx.font = `500 ${textFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
     ctx.lineJoin = "round"; ctx.miterLimit = 2;
-    ctx.strokeStyle = "rgba(0,0,0,.85)"; ctx.lineWidth = Math.max(2, textFS*0.13);
+    ctx.strokeStyle = "rgba(0,0,0,.8)"; ctx.lineWidth = Math.max(1, textFS*0.06);
     for (const line of textLines) {
       ctx.strokeText(line, cx, y);
       ctx.fillStyle = HSR_TEXT; ctx.fillText(line, cx, y);
@@ -497,14 +497,17 @@ function renderHSR(base, portrait, cx) {
       const r = rows[i], top = y, h = r.h, mid = top + h/2;
       const selected = i === state.selectedChoice;
       /* selected: light translucent bar to the right edge */
+      /* bar stays solid through the icon/text, then only the right END fades
+         out to transparent, as in game */
       if (selected) {
         const g = ctx.createLinearGradient(x0,0,x1,0);
-        g.addColorStop(0,"rgba(238,238,238,.10)"); g.addColorStop(.25,"rgba(238,238,238,.34)"); g.addColorStop(1,"rgba(238,238,238,.40)");
+        g.addColorStop(0,"rgba(238,238,238,.42)"); g.addColorStop(.60,"rgba(238,238,238,.40)");
+        g.addColorStop(.82,"rgba(238,238,238,.18)"); g.addColorStop(1,"rgba(238,238,238,0)");
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       } else {
-        /* very subtle dark backing */
         const g = ctx.createLinearGradient(x0,0,x1,0);
-        g.addColorStop(0,"rgba(14,17,25,.62)"); g.addColorStop(.62,"rgba(14,17,25,.58)"); g.addColorStop(1,"rgba(14,17,25,.44)");
+        g.addColorStop(0,"rgba(14,17,25,.60)"); g.addColorStop(.60,"rgba(14,17,25,.58)");
+        g.addColorStop(.82,"rgba(14,17,25,.28)"); g.addColorStop(1,"rgba(14,17,25,0)");
         ctx.fillStyle = g; ctx.fillRect(x0 - choiceFS*0.2, top, blockW + choiceFS*0.4, h);
       }
       /* icon */
