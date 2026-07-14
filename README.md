@@ -1,4 +1,4 @@
-# genshin_dialog_generator
+# Hoyoverse_Dialog_Generator
 
 원신(Genshin Impact)·붕괴: 스타레일(Honkai: Star Rail) 스타일 대화창 이미지를
 만드는 웹 편집기입니다. 상단 드롭다운에서 게임을 선택하면 해당 게임의 대화 UI로
