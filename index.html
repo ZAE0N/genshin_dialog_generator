@@ -86,8 +86,9 @@ button.primary:hover { filter:brightness(1.06); color:#26200f; }
 .gi-only, .hsr-only { display:none; }
 body[data-game="gi"] .row.gi-only, body[data-game="hsr"] .row.hsr-only { display:flex; }
 body[data-game="gi"] label.gi-only, body[data-game="gi"] input.gi-only { display:block; }
-.choice-row .iconSel.hsr-only { display:none; }
-body[data-game="hsr"] .choice-row .iconSel { display:block; }
+.choice-row .iconSel { display:none; }
+body[data-game="hsr"] .choice-row .iconSel,
+body[data-game="zzz"] .choice-row .iconSel { display:block; }
 @media (max-width:760px) {
   body { height:auto; min-height:100%; }
   main { flex-direction:column; }
@@ -123,6 +124,7 @@ body[data-game="hsr"] .choice-row .iconSel { display:block; }
       <select id="gameSel">
         <option value="gi">원신 (Genshin Impact)</option>
         <option value="hsr">붕괴: 스타레일 (Honkai: Star Rail)</option>
+        <option value="zzz">젠레스 존 제로 (Zenless Zone Zero)</option>
       </select>
     </fieldset>
 
@@ -217,10 +219,12 @@ const giBubble = mkImg(A_GI_BUBBLE), giTri = mkImg(A_GI_TRI), giTriB = mkImg(A_G
 const hsrImg = {}; for (const k in A_HSR) hsrImg[k] = mkImg(A_HSR[k].src);
 const hsrNext = mkImg(A_HSR_NEXT.src);
 
-const HSR_ICON_LABELS = {
-  continue:"→ 진행", talk:"💬 잡담", talkGold:"💬 특수", mission:"‹!› 임무",
-  missionGold:"‹!› 중요", exit:"⇥ 종료", check:"🔍 조사",
+const CHOICE_ICON_LABELS = {
+  hsr: { continue:"→ 진행", talk:"💬 잡담", talkGold:"💬 특수", mission:"‹!› 임무",
+         missionGold:"‹!› 중요", exit:"⇥ 종료", check:"🔍 조사" },
+  zzz: { normal:"› 일반", event:"⚠ 이벤트" },
 };
+const DEFAULT_ICON = { hsr:"continue", zzz:"normal" };
 
 const canvas = document.getElementById("stage");
 const ctx = canvas.getContext("2d");
@@ -529,6 +533,155 @@ function renderHSR(base, portrait, cx) {
   }
 }
 
+/* =======================================================================
+   ZENLESS ZONE ZERO renderer
+   Rounded black dialogue box (bottom-center) with a separate floating name
+   pill above it, left-aligned white text, a » continue mark, and rounded
+   pill choices on the right (icon + text). Recreated from in-game shots.
+   ======================================================================= */
+function roundRectPath(x, y, w, h, r) {
+  r = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+function drawChevron(x, y, s, color, lw) {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.beginPath(); ctx.moveTo(x - s*0.4, y - s*0.55); ctx.lineTo(x + s*0.35, y); ctx.lineTo(x - s*0.4, y + s*0.55); ctx.stroke();
+  ctx.restore();
+}
+function drawWarnIcon(cx2, cy2, s, base) {
+  /* red rounded triangle with a white exclamation, like the ZZZ combat choice */
+  ctx.save();
+  ctx.fillStyle = "#e8412e"; ctx.lineJoin = "round";
+  const r = s*0.12, hh = s*0.5;
+  ctx.beginPath();
+  ctx.moveTo(cx2, cy2 - hh);
+  ctx.lineTo(cx2 + hh*1.02, cy2 + hh*0.72);
+  ctx.lineTo(cx2 - hh*1.02, cy2 + hh*0.72);
+  ctx.closePath();
+  ctx.lineWidth = s*0.24; ctx.strokeStyle = "#e8412e"; ctx.stroke(); ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(cx2 - s*0.05, cy2 - hh*0.28, s*0.10, hh*0.66);
+  ctx.beginPath(); ctx.arc(cx2, cy2 + hh*0.5, s*0.075, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function renderZZZ(base, portrait, cx) {
+  const { W, H } = state;
+  const nameFS = base*0.030, textFS = base*0.033, choiceFS = base*0.030;
+  const lineH = textFS*1.5;
+  const boxRadius = base*0.022;
+  const ZZZ_BG = "rgba(16,17,21,.92)", ZZZ_BORDER = "rgba(236,238,242,.16)";
+
+  /* ----- dialogue box ----- */
+  const hasDialog = state.text.trim() || state.name.trim();
+  const boxW = portrait ? W*0.90 : W*0.58;
+  const boxLeft = (W - boxW)/2;
+  const padX = boxW*0.055, padY = base*0.032;
+  const bottomPad = base*0.045;
+
+  let textLines = [];
+  if (hasDialog && state.text.trim()) {
+    ctx.font = `700 ${textFS}px ${FONT_BODY}`;
+    textLines = wrapText(state.text.trim(), boxW - padX*2 - textFS*1.1);
+    if (textLines.length > 5) { textLines = textLines.slice(0,5); textLines[4] = textLines[4].replace(/.$/,"")+"…"; }
+  }
+  const contentH = Math.max(1, textLines.length) * lineH;
+  const boxH = contentH + padY*2;
+  const boxTop = H - bottomPad - boxH;
+
+  if (hasDialog) {
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = base*0.02; ctx.shadowOffsetY = base*0.004;
+    roundRectPath(boxLeft, boxTop, boxW, boxH, boxRadius);
+    ctx.fillStyle = ZZZ_BG; ctx.fill();
+    ctx.shadowColor = "transparent";
+    ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = ZZZ_BORDER; ctx.stroke();
+    ctx.restore();
+
+    /* dialogue text: white bold, left-aligned */
+    ctx.save();
+    ctx.fillStyle = "#f6f7f9"; ctx.font = `700 ${textFS}px ${FONT_BODY}`;
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
+    let ty = boxTop + padY;
+    for (const line of textLines) { ctx.fillText(line, boxLeft + padX, ty); ty += lineH; }
+    ctx.restore();
+
+    /* » continue mark, bottom-right of box */
+    if (state.showTri) {
+      const s = textFS*0.62, mx = boxLeft + boxW - padX*0.7, my = boxTop + boxH - padY*0.7;
+      drawChevron(mx - s*0.55, my, s, "rgba(236,238,242,.85)", Math.max(1.5, base*0.003));
+      drawChevron(mx - s*0.05, my, s, "rgba(236,238,242,.85)", Math.max(1.5, base*0.003));
+    }
+
+    /* name pill: floating rounded tag centered above the box top edge */
+    if (state.name.trim()) {
+      ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
+      const nw = ctx.measureText(state.name.trim()).width;
+      const pillH = nameFS*1.9, pillW = nw + nameFS*1.7;
+      const pillX = cx - pillW/2, pillY = boxTop - pillH*0.58;
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.012; ctx.shadowOffsetY = base*0.002;
+      roundRectPath(pillX, pillY, pillW, pillH, pillH/2);
+      ctx.fillStyle = "rgba(20,21,26,.96)"; ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = "rgba(236,238,242,.18)"; ctx.stroke();
+      ctx.fillStyle = "#f6f7f9"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(state.name.trim(), cx, pillY + pillH/2 + nameFS*0.02);
+      ctx.restore();
+    }
+  }
+
+  /* ----- choices: rounded pills on the right, icon + white bold text ----- */
+  const items = state.choices.map((s,i)=>({t:s.trim(), icon: state.choiceIcons[i]||"normal"})).filter(o=>o.t);
+  if (items.length) {
+    const rightMargin = W*0.04;
+    const maxPillW = portrait ? W*0.62 : W*0.40;
+    const iconBox = choiceFS*1.2, gapI = choiceFS*0.5;
+    const padH = choiceFS*0.95, padV = choiceFS*0.5;
+    const rowGap = choiceFS*0.6, clineH = choiceFS*1.35;
+    const maxTextW = maxPillW - padH*2 - iconBox - gapI;
+
+    ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
+    const rows = items.map(o => {
+      const lines = wrapText(o.t, maxTextW);
+      const tw = Math.max(...lines.map(l => ctx.measureText(l).width));
+      return { ...o, lines, tw, h: Math.max(iconBox, lines.length*clineH) + padV*2 };
+    });
+    const totalH = rows.reduce((a,r)=>a+r.h,0) + rowGap*(rows.length-1);
+    /* stack sits above the dialogue box, right-aligned */
+    let yBottom = boxTop - base*0.05;
+    let y = yBottom - totalH;
+    if (y < base*0.05) y = base*0.05;
+    for (const r of rows) {
+      const pillW = Math.min(maxPillW, padH*2 + iconBox + gapI + r.tw);
+      const x = W - rightMargin - pillW, top = y, mid = top + r.h/2;
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.012; ctx.shadowOffsetY = base*0.003;
+      roundRectPath(x, top, pillW, r.h, r.h/2);
+      ctx.fillStyle = ZZZ_BG; ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = ZZZ_BORDER; ctx.stroke();
+      /* icon */
+      const ix = x + padH + iconBox/2;
+      if (r.icon === "event") drawWarnIcon(ix, mid, iconBox*0.9, base);
+      else drawChevron(ix - iconBox*0.1, mid, iconBox*0.7, "rgba(236,238,242,.9)", Math.max(1.6, base*0.0032));
+      /* text */
+      ctx.fillStyle = "#f6f7f9"; ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      const tx = x + padH + iconBox + gapI;
+      const ty0 = mid - (r.lines.length-1)*clineH/2;
+      r.lines.forEach((l,j)=>ctx.fillText(l, tx, ty0 + j*clineH));
+      ctx.restore();
+      y += r.h + rowGap;
+    }
+  }
+}
+
 /* ---------- top-level render ---------- */
 function render() {
   const { W, H } = state;
@@ -546,17 +699,26 @@ function render() {
   const base = Math.min(W,H) * state.scale;
   const portrait = H >= W, cx = W/2;
   if (state.game === "hsr") renderHSR(base, portrait, cx);
+  else if (state.game === "zzz") renderZZZ(base, portrait, cx);
   else renderGI(base, portrait, cx);
 }
 
 /* ---------- UI wiring ---------- */
 const $ = id => document.getElementById(id);
 
-const DEFAULT_NAMES = { gi: "페이몬", hsr: "삼칠이" };
+const DEFAULT_NAMES = { gi: "페이몬", hsr: "삼칠이", zzz: "니콜" };
 const DEFAULT_CHOICES = {
   gi: [["'폭풍의 신'…?", "continue"], ["잠깐, 방금 '자기 신전'이라고 말한 거야?", "talk"]],
   hsr: [["당신이 바로 소문으로만 듣던…", "missionGold"], ["궁금한 게 있어…", "talk"], ["더 궁금한 거 없어", "exit"]],
+  zzz: [["지금 볼래 (전투 시작)", "event"], ["아직은 아니야", "normal"]],
 };
+function fillIconSelect(sel, game, want) {
+  const labels = CHOICE_ICON_LABELS[game] || CHOICE_ICON_LABELS.hsr;
+  const keys = Object.keys(labels);
+  sel.innerHTML = "";
+  for (const k of keys) { const o = document.createElement("option"); o.value = k; o.textContent = labels[k]; sel.append(o); }
+  sel.value = keys.includes(want) ? want : keys[0];
+}
 function choiceRowsMatch(defs) {
   const rows = [...document.querySelectorAll("#choices .choice-row")];
   if (rows.length !== defs.length) return false;
@@ -581,6 +743,11 @@ $("gameSel").addEventListener("change", () => {
   nameEl.placeholder = "예: " + DEFAULT_NAMES[state.game];
   /* swap the sample choices only if they're still the untouched defaults */
   if (choiceRowsMatch(DEFAULT_CHOICES[prev])) setChoiceRows(DEFAULT_CHOICES[state.game]);
+  else {
+    /* keep the user's choices but repopulate each icon dropdown for the new game */
+    document.querySelectorAll("#choices .choice-row select.iconSel").forEach(sel => fillIconSelect(sel, state.game, sel.value));
+    syncChoices();
+  }
   render();
 });
 
@@ -652,9 +819,8 @@ function addChoiceRow(value, iconType) {
     syncChoices();
   });
   const icon = document.createElement("select");
-  icon.className = "iconSel hsr-only";
-  for (const k in HSR_ICON_LABELS) { const o = document.createElement("option"); o.value = k; o.textContent = HSR_ICON_LABELS[k]; icon.append(o); }
-  icon.value = iconType || "continue";
+  icon.className = "iconSel";
+  fillIconSelect(icon, state.game, iconType);
   icon.addEventListener("change", syncChoices);
   const input = document.createElement("input");
   input.type = "text"; input.placeholder = "선택지 내용"; input.value = value || "";
@@ -665,7 +831,7 @@ function addChoiceRow(value, iconType) {
   row.append(sel, icon, input, del);
   $("choices").append(row);
 }
-$("addChoice").addEventListener("click", () => { addChoiceRow("", "continue"); syncChoices(); });
+$("addChoice").addEventListener("click", () => { addChoiceRow("", DEFAULT_ICON[state.game] || "continue"); syncChoices(); });
 setChoiceRows(DEFAULT_CHOICES.gi);
 
 /* save */
@@ -673,7 +839,7 @@ $("save").addEventListener("click", () => {
   canvas.toBlob(blob => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = (state.game === "hsr" ? "hsr" : "genshin") + "_dialog.png";
+    a.download = ({gi:"genshin", hsr:"hsr", zzz:"zzz"}[state.game] || "dialog") + "_dialog.png";
     a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   }, "image/png");
 });
