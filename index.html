@@ -331,31 +331,39 @@ function drawGIDivider(cx, y, width, base, subtitle, subFS) {
   const lSwashRight = cx - tw / 2 - gapTO, lSwashLeft = lSwashRight - swW;
   const rSwashLeft = cx + tw / 2 + gapTO, rSwashRight = rSwashLeft + swW;
 
-  /* line + swash, both from the same sprite so color, brightness and
-     softness are pixel-identical. The straight line is a stretched slice
-     of the sprite's own line (cols 23-26); the swash crop continues it
-     seamlessly. */
+  /* whole ornament — end diamonds, straight line and swash — all from the
+     one sprite, so color/brightness/softness are pixel-identical across
+     the bar. The line is a stretched slice of the sprite's own line
+     (cols 23-26); it runs UNDER the swash (overlap) so there is no seam. */
   ctx.shadowColor = "transparent"; ctx.shadowBlur = 0;
   if (giLineL.complete) {
-    const LSX = 23, LSW = 3;
-    const lLineW = lSwashLeft - (x0 + r);
-    if (lLineW > 0) ctx.drawImage(giLineL, LSX, 0, LSW, 20, x0 + r, swDrawY, lLineW, swH);
-    const rLineW = (x1 - r) - rSwashRight;
-    if (rLineW > 0) ctx.drawImage(giLineL, LSX, 0, LSW, 20, rSwashRight, swDrawY, rLineW, swH);
+    const LSX = 23, LSW = 3;                 // clean line slice
+    const ENDW = swH * (22 / 20);            // end ornament (dot+diamond) cols 0-22
+    const overlap = swW * 0.10;
+    /* end diamonds */
+    ctx.drawImage(giLineL, 0, 0, 22, 20, x0, swDrawY, ENDW, swH);
+    ctx.save(); ctx.translate(x1, swDrawY); ctx.scale(-1, 1);
+    ctx.drawImage(giLineL, 0, 0, 22, 20, 0, 0, ENDW, swH);
+    ctx.restore();
+    /* straight lines (overlap into the swash so the join is seamless) */
+    const lLineX = x0 + ENDW, lLineW = (lSwashLeft + overlap) - lLineX;
+    if (lLineW > 0) ctx.drawImage(giLineL, LSX, 0, LSW, 20, lLineX, swDrawY, lLineW, swH);
+    const rLineX = rSwashRight - overlap, rLineW = (x1 - ENDW) - rLineX;
+    if (rLineW > 0) ctx.drawImage(giLineL, LSX, 0, LSW, 20, rLineX, swDrawY, rLineW, swH);
+    /* swash curls on top of the line overlap */
     ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, lSwashLeft, swDrawY, swW, swH);
     ctx.save(); ctx.translate(rSwashRight, swDrawY); ctx.scale(-1, 1);
     ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, 0, 0, swW, swH);
     ctx.restore();
   } else {
-    /* fallback while the sprite loads: plain vector line */
+    /* fallback while the sprite loads: plain vector line + diamonds */
     ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(Math.max(x0 + r, lSwashLeft), y); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(Math.min(x1 - r, rSwashRight), y); ctx.lineTo(x1 - r, y); ctx.stroke();
+    drawGIDividerEnd(x0, y, base, 1); drawGIDividerEnd(x1, y, base, -1);
   }
 
-  /* diamond ends + subtitle text */
+  /* subtitle text */
   ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
-  drawGIDividerEnd(x0, y, base, 1);
-  drawGIDividerEnd(x1, y, base, -1);
   ctx.fillStyle = GI_GOLD;
   ctx.fillText(subtitle, cx, y);
   ctx.restore();
