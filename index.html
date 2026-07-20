@@ -572,78 +572,86 @@ function drawWarnIcon(cx2, cy2, s, base) {
 }
 function renderZZZ(base, portrait, cx) {
   const { W, H } = state;
-  const nameFS = base*0.030, textFS = base*0.033, choiceFS = base*0.030;
-  const lineH = textFS*1.5;
-  const boxRadius = base*0.022;
-  const ZZZ_BG = "rgba(16,17,21,.92)", ZZZ_BORDER = "rgba(236,238,242,.16)";
+  const YEL = "#ffe100";                       // New Eridu signature yellow
+  const BG  = "rgba(18,19,23,.90)";            // near-black translucent panel
+  const BORDER = "rgba(255,255,255,.10)";
+  const nameFS = base*0.033, textFS = base*0.032, choiceFS = base*0.029;
+  const lineH = textFS*1.5, boxRadius = base*0.016;
 
-  /* ----- dialogue box ----- */
-  const hasDialog = state.text.trim() || state.name.trim();
-  const boxW = portrait ? W*0.90 : W*0.58;
+  const nm = state.name.trim(), tx = state.text.trim();
+  const hasDialog = nm || tx;
+
+  /* ----- dialogue panel: wide, bottom-integrated, left content ----- */
+  const boxW = portrait ? W*0.92 : W*0.64;
   const boxLeft = (W - boxW)/2;
-  const padX = boxW*0.055, padY = base*0.032;
-  const bottomPad = base*0.045;
+  const padX = base*0.028, padTop = base*0.024, padBot = base*0.028;
+  const bottomPad = base*0.042;
+  const nameH = nm ? nameFS*1.35 : 0;
 
   let textLines = [];
-  if (hasDialog && state.text.trim()) {
-    ctx.font = `700 ${textFS}px ${FONT_BODY}`;
-    textLines = wrapText(state.text.trim(), boxW - padX*2 - textFS*1.1);
+  if (tx) {
+    ctx.font = `600 ${textFS}px ${FONT_BODY}`;
+    textLines = wrapText(tx, boxW - padX*2);
     if (textLines.length > 5) { textLines = textLines.slice(0,5); textLines[4] = textLines[4].replace(/.$/,"")+"…"; }
   }
-  const contentH = Math.max(1, textLines.length) * lineH;
-  const boxH = contentH + padY*2;
+  const textH = textLines.length * lineH;
+  const boxH = padTop + nameH + textH + padBot;
   const boxTop = H - bottomPad - boxH;
 
   if (hasDialog) {
     ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = base*0.02; ctx.shadowOffsetY = base*0.004;
+    ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base*0.022; ctx.shadowOffsetY = base*0.005;
     roundRectPath(boxLeft, boxTop, boxW, boxH, boxRadius);
-    ctx.fillStyle = ZZZ_BG; ctx.fill();
+    ctx.fillStyle = BG; ctx.fill();
     ctx.shadowColor = "transparent";
-    ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = ZZZ_BORDER; ctx.stroke();
+    ctx.lineWidth = Math.max(1, base*0.0013); ctx.strokeStyle = BORDER; ctx.stroke();
+    /* thin yellow accent bar down the left edge — ZZZ signature */
+    roundRectPath(boxLeft, boxTop, base*0.006, boxH, base*0.003);
+    ctx.fillStyle = YEL; ctx.fill();
     ctx.restore();
 
-    /* dialogue text: white bold, left-aligned */
-    ctx.save();
-    ctx.fillStyle = "#f6f7f9"; ctx.font = `700 ${textFS}px ${FONT_BODY}`;
-    ctx.textAlign = "left"; ctx.textBaseline = "top";
-    let ty = boxTop + padY;
-    for (const line of textLines) { ctx.fillText(line, boxLeft + padX, ty); ty += lineH; }
-    ctx.restore();
+    let cy = boxTop + padTop;
 
-    /* » continue mark, bottom-right of box */
-    if (state.showTri) {
-      const s = textFS*0.62, mx = boxLeft + boxW - padX*0.7, my = boxTop + boxH - padY*0.7;
-      drawChevron(mx - s*0.55, my, s, "rgba(236,238,242,.85)", Math.max(1.5, base*0.003));
-      drawChevron(mx - s*0.05, my, s, "rgba(236,238,242,.85)", Math.max(1.5, base*0.003));
+    /* name: top-left heading, white bold, with a slanted yellow tick */
+    if (nm) {
+      const tickH = nameFS*0.86, tickW = base*0.009;
+      const ty = cy + (nameFS*1.15 - tickH)/2, tX = boxLeft + padX;
+      ctx.save();
+      ctx.fillStyle = YEL; ctx.beginPath();
+      ctx.moveTo(tX + tickH*0.32, ty); ctx.lineTo(tX + tickH*0.32 + tickW, ty);
+      ctx.lineTo(tX + tickW, ty + tickH); ctx.lineTo(tX, ty + tickH); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#ffffff"; ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
+      ctx.textAlign = "left"; ctx.textBaseline = "top";
+      ctx.fillText(nm, tX + tickW + base*0.014, cy);
+      ctx.restore();
+      cy += nameH;
     }
 
-    /* name pill: floating rounded tag centered above the box top edge */
-    if (state.name.trim()) {
-      ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
-      const nw = ctx.measureText(state.name.trim()).width;
-      const pillH = nameFS*1.9, pillW = nw + nameFS*1.7;
-      const pillX = cx - pillW/2, pillY = boxTop - pillH*0.58;
+    /* dialogue text: white, left-aligned */
+    if (textLines.length) {
       ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.012; ctx.shadowOffsetY = base*0.002;
-      roundRectPath(pillX, pillY, pillW, pillH, pillH/2);
-      ctx.fillStyle = "rgba(20,21,26,.96)"; ctx.fill();
-      ctx.shadowColor = "transparent";
-      ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = "rgba(236,238,242,.18)"; ctx.stroke();
-      ctx.fillStyle = "#f6f7f9"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(state.name.trim(), cx, pillY + pillH/2 + nameFS*0.02);
+      ctx.fillStyle = "#f1f2f4"; ctx.font = `600 ${textFS}px ${FONT_BODY}`;
+      ctx.textAlign = "left"; ctx.textBaseline = "top";
+      let ty = cy;
+      for (const l of textLines) { ctx.fillText(l, boxLeft + padX, ty); ty += lineH; }
       ctx.restore();
+    }
+
+    /* advance arrow: single yellow chevron, bottom-right of box */
+    if (state.showTri) {
+      const s = textFS*0.72;
+      drawChevron(boxLeft + boxW - padX*0.85, boxTop + boxH - padBot*0.5, s, YEL, Math.max(1.6, base*0.0032));
     }
   }
 
-  /* ----- choices: rounded pills on the right, icon + white bold text ----- */
+  /* ----- choices: rounded buttons on the right, icon + white bold ----- */
   const items = state.choices.map((s,i)=>({t:s.trim(), icon: state.choiceIcons[i]||"normal"})).filter(o=>o.t);
   if (items.length) {
-    const rightMargin = W*0.04;
-    const maxPillW = portrait ? W*0.62 : W*0.40;
-    const iconBox = choiceFS*1.2, gapI = choiceFS*0.5;
-    const padH = choiceFS*0.95, padV = choiceFS*0.5;
-    const rowGap = choiceFS*0.6, clineH = choiceFS*1.35;
+    const rightMargin = W*0.045;
+    const maxPillW = portrait ? W*0.64 : W*0.40;
+    const iconBox = choiceFS*1.25, gapI = choiceFS*0.55;
+    const padH = choiceFS*1.0, padV = choiceFS*0.55;
+    const rowGap = choiceFS*0.55, clineH = choiceFS*1.35;
     const maxTextW = maxPillW - padH*2 - iconBox - gapI;
 
     ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
@@ -653,29 +661,32 @@ function renderZZZ(base, portrait, cx) {
       return { ...o, lines, tw, h: Math.max(iconBox, lines.length*clineH) + padV*2 };
     });
     const totalH = rows.reduce((a,r)=>a+r.h,0) + rowGap*(rows.length-1);
-    /* stack sits above the dialogue box, right-aligned */
-    let yBottom = boxTop - base*0.05;
-    let y = yBottom - totalH;
+    let y = (boxTop - base*0.05) - totalH;
     if (y < base*0.05) y = base*0.05;
+
     for (const r of rows) {
       const pillW = Math.min(maxPillW, padH*2 + iconBox + gapI + r.tw);
       const x = W - rightMargin - pillW, top = y, mid = top + r.h/2;
+      const isEvent = r.icon === "event";
       ctx.save();
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.012; ctx.shadowOffsetY = base*0.003;
-      roundRectPath(x, top, pillW, r.h, r.h/2);
-      ctx.fillStyle = ZZZ_BG; ctx.fill();
+      roundRectPath(x, top, pillW, r.h, r.h*0.5);
+      ctx.fillStyle = BG; ctx.fill();
       ctx.shadowColor = "transparent";
-      ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = ZZZ_BORDER; ctx.stroke();
+      ctx.lineWidth = Math.max(1, base*0.0013);
+      ctx.strokeStyle = isEvent ? "rgba(232,65,46,.55)" : BORDER; ctx.stroke();
+      /* left accent tick */
+      roundRectPath(x, top, base*0.005, r.h, base*0.0025);
+      ctx.fillStyle = isEvent ? "#e8412e" : YEL; ctx.fill();
       /* icon */
       const ix = x + padH + iconBox/2;
-      if (r.icon === "event") drawWarnIcon(ix, mid, iconBox*0.9, base);
-      else drawChevron(ix - iconBox*0.1, mid, iconBox*0.7, "rgba(236,238,242,.9)", Math.max(1.6, base*0.0032));
+      if (isEvent) drawWarnIcon(ix, mid, iconBox*0.92, base);
+      else drawChevron(ix - iconBox*0.08, mid, iconBox*0.7, YEL, Math.max(1.6, base*0.0032));
       /* text */
-      ctx.fillStyle = "#f6f7f9"; ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
+      ctx.fillStyle = "#f1f2f4"; ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      const tx = x + padH + iconBox + gapI;
-      const ty0 = mid - (r.lines.length-1)*clineH/2;
-      r.lines.forEach((l,j)=>ctx.fillText(l, tx, ty0 + j*clineH));
+      const tX = x + padH + iconBox + gapI, ty0 = mid - (r.lines.length-1)*clineH/2;
+      r.lines.forEach((l,j)=>ctx.fillText(l, tX, ty0 + j*clineH));
       ctx.restore();
       y += r.h + rowGap;
     }
