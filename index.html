@@ -293,9 +293,28 @@ function drawGIDividerEnd(x, y, base, dir) {
   drawDiamond(x + dir * -(r * 2.1), y, r * 0.42, GI_GOLD);
   ctx.restore();
 }
-/* swash source crop within the 80x20 UI_TalkLine_Left sprite: just the
-   curl at the inner (right) end — excludes the sprite's own diamond/line. */
-const GI_SWASH_SX = 36, GI_SWASH_SW = 44, GI_SWASH_ASPECT = 44 / 20;
+/* thin gold swash flourish, drawn to match the line's stroke weight.
+   attaches to the straight line at (sx,y); curls toward the text (dir:
+   +1 = flourish opens to the right, -1 = mirrored to the left). */
+function drawGISwash(sx, y, w, amp, dir, base) {
+  const d = dir;
+  ctx.save();
+  ctx.strokeStyle = GI_GOLD; ctx.fillStyle = GI_GOLD;
+  ctx.lineWidth = Math.max(1.2, base * 0.0024);
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  /* main wave: rise into a hump, descend, curl into a small hook */
+  ctx.beginPath();
+  ctx.moveTo(sx, y);
+  ctx.bezierCurveTo(sx + d*w*0.28, y - amp*1.15, sx + d*w*0.50, y - amp*1.2, sx + d*w*0.63, y - amp*0.25);
+  ctx.bezierCurveTo(sx + d*w*0.72, y + amp*0.55, sx + d*w*0.9, y + amp*0.5, sx + d*w*0.98, y - amp*0.1);
+  ctx.stroke();
+  /* small floating accent tick above the hook */
+  ctx.beginPath();
+  ctx.moveTo(sx + d*w*0.80, y - amp*1.05);
+  ctx.quadraticCurveTo(sx + d*w*1.02, y - amp*1.35, sx + d*w*1.12, y - amp*0.75);
+  ctx.stroke();
+  ctx.restore();
+}
 function drawGIDivider(cx, y, width, base, subtitle, subFS) {
   ctx.save();
   ctx.fillStyle = GI_GOLD; ctx.strokeStyle = GI_GOLD;
@@ -313,30 +332,26 @@ function drawGIDivider(cx, y, width, base, subtitle, subFS) {
     return;
   }
 
-  /* with subtitle: [diamond]—line—[swash] text [swash]—line—[diamond] */
+  /* with subtitle: [diamond]——long line——[swash] text [swash]——long line——[diamond] */
   ctx.font = `600 ${subFS}px ${FONT_BODY}`;
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   const tw = ctx.measureText(subtitle).width;
-  const gapTO = subFS * 0.35;                 // gap text↔swash
-  const ornH = subFS * 1.5, ornW = ornH * GI_SWASH_ASPECT;
-  const lineLen = base * 0.077;               // straight line each side
-  const half = tw / 2 + gapTO + ornW + lineLen;
+  const gapTO = subFS * 0.30;                 // gap text↔swash
+  const swW = subFS * 1.45, swAmp = subFS * 0.32;
+  const lineLen = base * 0.117;               // long straight line each side
+  const half = tw / 2 + gapTO + swW + lineLen;
   const x0 = cx - half, x1 = cx + half;
-  const lSwashRight = cx - tw / 2 - gapTO, lSwashLeft = lSwashRight - ornW;
-  const rSwashLeft = cx + tw / 2 + gapTO, rSwashRight = rSwashLeft + ornW;
+  const lSwashSx = cx - tw / 2 - gapTO - swW;  // left swash attach (line end)
+  const rSwashSx = cx + tw / 2 + gapTO + swW;  // right swash attach (line end)
 
-  /* straight lines from diamond ends to the swash outer edges */
-  ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(lSwashLeft + ornW * 0.15, y); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(rSwashRight - ornW * 0.15, y); ctx.lineTo(x1 - r, y); ctx.stroke();
+  /* straight lines from diamond ends to the swash attach points */
+  ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(lSwashSx, y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rSwashSx, y); ctx.lineTo(x1 - r, y); ctx.stroke();
 
-  /* swash curls (crop giLineL; mirror it for the right side) */
-  ctx.shadowColor = "transparent"; ctx.shadowBlur = 0;
-  if (giLineL.complete) {
-    ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, lSwashLeft, y - ornH / 2, ornW, ornH);
-    ctx.save(); ctx.translate(rSwashRight, y - ornH / 2); ctx.scale(-1, 1);
-    ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, 0, 0, ornW, ornH);
-    ctx.restore();
-  }
+  /* thin swash flourishes flanking the subtitle */
+  ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base * 0.003;
+  drawGISwash(lSwashSx, y, swW, swAmp,  1, base);
+  drawGISwash(rSwashSx, y, swW, swAmp, -1, base);
 
   /* diamond ends + subtitle text */
   ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
