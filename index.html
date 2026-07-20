@@ -202,6 +202,9 @@ body[data-game="zzz"] .choice-row .iconSel { display:block; }
 const A_GI_BUBBLE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAkCAYAAAD7PHgWAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACZElEQVR42t3YsW7TQBjA8VNAiNHKngGpBTGBhCsh1AkID0AeojxCQBVr2BhTXqCLGREC+Q1clIWKtolYEAEJJc7UhcHhf9Kn6HQ6n11kJ26H39DY9/kvxXEuVbPpmSrl16nX/5/vp65iYIjBfHoWYYIFljPLHFhggkivQVhX4E2G9pAgRSYBwhFo0WuQIkFPzywb6H5Lfq70kMymp8tKSSiUQ6nAAENkWg2BmRgiuGhgh6gYWd2BIkGnbGAHIwlbS6AYoQMr0KhGgASFQTUFJwh8gQNkmwoUg7zAENmmA0VoB15D1KDAyA58yB/nWApZ4ME5Ju/xi887X/z+totV4Gs50IxAELdvBn70DBwiRBdHnoAYOyL2zDtCFyGGnsDPZuBxzsAYSrSwjdQx8CuvtdESbf2aY14qM1pQIs4JPDEDf9g3rXzB9x3fzQnst+gQynJobhb0GiRQMM/r6+P29e3AY1cgYo4FRmCI1BE4xhaU2GLtxBGYIjQCA32NMoEfXIEi4vhThu5hjEwCbQl6ItFr7UAxxp6eqWdj6Qq078G+J9C+gAT6+ddbx92B+1htFu4zdNGgB3VK9L25tZt516DAAx1nB95tUOAdV+ANvGpA4EtcdwUqEcN1E1cp70dVXGZHHSDeQGCMoCjQfIC+X2NgZMQVB4oWC9+sIXDg/9lZ/K+LXXwqehAXba8cH4o/eJxz/VKBti4ipBUGqioDW2IbL4g6wBcsPIHfMcoJ/IvnVQfa2riNHdY8M/HaA9xCG29zAk8QlA2sl7l7hv0JbkKg9gQRxjrOMOGcR5sO9OOcSxn4Dw9+SXYKX0YuAAAAAElFTkSuQmCC"; // UI_IconTalkSmall 40x36
 const A_GI_TRI    = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAARCAYAAADZsVyDAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABW0lEQVR42o2UTU7DQAyF36Sh4e9uLNn2Aqw4BAdACEFhg1QkNl0gLoVYdIOglGSCLflJ1pNaOtKTndjzaWJ7UsYZuIrakMbHsPRdUNsKxNXQ0ncJmKou+hlOcIZOTG1Y+g3BCdKbhlAfsZrB3EDoQdI0LOFI0F/Txq2UbDAVPTFP6MBD05GpC/iEGwP2Y/o2FSlLyaXQMnQBPTEdxzNz+4B+pdIMSZXN08a1OMclTnGBfdYnrvGCK5aEalKHuYol3mCFh3+hK8w9N9eYvAZcOkZL3OEDT1uhHlvinmOmBwxwAuYResUj3vGsTH/nMRm5So6CK4GmDdj1N8wNtEjQhb/zmOdEbi9wtO7IyBDMUaoGusUZvDkw32u/9riLYL15ZZztnOMuNJU55he51nLqMc/xyE3STF6ELTePNkHlJ6RwBTQZLE2uClWwwivhO/9uOmoKVrgkF81Rq5A/8d+5yYVsvskAAAAASUVORK5CYII=";    // UI_TalkClickA 22x17
 const A_GI_TRIB   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACBklEQVR42tWYX2rCQBCHt7EmKmvVxBq1CoK9R//Zp0q9Qm9Sj9JS+17pEXqwdAZ+gWFAZFZFffggzCaZz+zsJKsr3pwzcKGIJHrccF+7BBJWwKVExCOjjE1CJK8SMZEQNZAgVi2lDDJBEjESNwhPNIHnGMZio4xZIiHqSNwiUiIDKWJNnJMYZMwSDeIKSa+JvPh1L8ScjxFLcU7DIBMkkSHpsPhxr8WfWzJ8zDGMZUaZYIkbSryAxDtYcozHQmR2l/hwz8yOMqHTAYlPN6PYLcPHHAudpnCJL/dIsYmEYg+BMoES3+6eYmNipBjzWIhMKRKJZlXXNaElkHSA8R7IERtpGV0zyBEjZyRFKmjNNTSkVBWmlugTXaJDtEEHsb6S0QWcIkcNOStaJMZja6ExDaUEzz+mY4CE7bKtA49YF+eM+RolM8S9W7gmliKRqA0P41ytjicU5IjI8eu9eNklOPYYy3HuhK+V0ySeihe1EkmRcloybtmiT/ASnQqRHtEWRVcFCccw1itFiCnfo5TB6yAT03OqInpq1geYmvXmqTmJYrUv35Vh+a4My9fQ0KTM3baGxudICUtD297iUTOQ2dzi5ZNY21q8XQY1s+GlZ5YI/QxYqNU0ZVTjWhgk9vZhNGNCPozO4lMxqGasNXGo7cTcsp040w3W8becx9+EH/9viVP5o+Yfx2HNdZG2ffIAAAAASUVORK5CYII=";   // UI_TalkClickB 34x34
+const A_GI_LINE   = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAUCAYAAADLP76nAAAACXBIWXMAAA7EAAAOxAGVKw4bAAADDElEQVR42tWXO2hUQRRAz7xds0HBJuajlgajJsYo6qb1gwSSmMZSQ7RTbK2U+Ik2lopWfiptxJSK8QNJtIiCItpYxMZGsiEWiYXivvEyPN5lLwysLCkcOLzJzD1z77z3dmeDH4MGcIZV8uIk/FtzGUlGvC804NXdisSbIz7matDmDY14zqzh4xtQgcid89qPoAlSU4x1E+zacTBrYMYpmsWIJIu9BooumpqrEHVtkanxsGtZr4gtXBMUAFtgomis3UCGTWpd+9Ssa+eqeYzmcknk7hYyihlrgCaUEtDMDjYzyh1OCN3Sh1Igi4t4JfE2BWc095qtF9AaCgF7A+KviC1esJs5ygj9PGcNQzQxSJlnDDNiCrabKDGceeIEt8wUspbm0Zwmb8EWDxB/AvtoY5R7HOcuO+nIF+yincP0U+EbKcv8Zi7gaBHjhsTfoouN2EI66eBgxGvlpni32U5H7vXQjuQONZRpjzyB/FApCE3CWmG9f8qYn6EieD8tvGLRP+KMnxRk3M9SlZj7/ioH/Cn6hN0yNyFzKzLn5broXzDvX+ID0pd1FnNvgkPBEVe8KzXeJGcl1+mQcxoZC1TEOxlqCzXSlNXsYgeZHXfmg52wjmNsYRcpHoC3PGGZh2g8OOtnXie9ufdOvBUe5HEhMprftnD39b1XipTpoIvrpCR85DyfWApx22hnL5cpMQDAL2Zx4iwxyRumSKlSwlHhJ5ACSWCrePsZx3o/eMxr8Tx/KAELmddLi3At2F84xxzfQWKgipKGDaB3134DJYr5gA8zRCsXcbQAkFJhmgG+spQl8vkGlKJYg7QxXuPNcIT53EsD5mvZFJ9mV68bgMRQwBZvx3vYwB4mAMd7LvCZBU2YJVdf3e7Mc8AH5OmqZ/yAFmxjdAPUJLLvOxA7jHQueoglWFebt4eUXuuLkQ2AFhM9le2YjutcahLoBqyrzcbr32gzMYDGFy71oc0GKKnpW6qKPu4YJjY1nuYw/fiPOTuhd9X2ncHGeQMADXjU+3M6LsT7blW9etv//i/lX0+EKI2wQnYqAAAAAElFTkSuQmCC";   // UI_TalkLine center ornament 48x20
+const A_GI_LINE_L = "data:image/png;base64,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"; // UI_TalkLine_Left swash 80x20
+const A_GI_LINE_R = "data:image/png;base64,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"; // UI_TalkLine_Right swash 80x20
 /* Honkai: Star Rail choice icons + continue chevron */
 const A_HSR = {
   continue:    { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAjCAQAAABWDGCrAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABOUlEQVR42tWWP0vDQBiHLQjOoThI5yKCg2LAoQ4KyZDNIX4GIxTcRL+ABBxd/AwS5yJkcc7QD1BwchNXFymPR9L0uNx095ZCn99ySx5yf973bmuzoKcS0GsjE1XkqxGVQI5cRApAIRcNaZiy6z3FxYczGj4JZaKCljmRRHSvRSrX/qIYkye9Vm6iPn+YFF4ilQldKgJsEX1iRvUo4YpkmVjlghElNjOGtugBgFMGuPBL1E7RFEUMcCUzRWNvEeRSkabUohsAzp1F8zqvXdGlo8g+6dx5i1K92PqPThxFX1Y3YIcjDupRyBnhMscqh+wzwaYicC+RD7oUPrW2ZxXti1/RJpjc+raRR2O7U//G9k7LD6Gk1X7TMCWQNP9wsdRvbMuuowyAZ/kjogLGEou++zOhRp/stb6l/gGMQomOdtXaUwAAAABJRU5ErkJggg==", w:36, h:35 },
@@ -216,6 +219,7 @@ const A_HSR_NEXT = { src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAM
 
 function mkImg(src){ const i = new Image(); i.src = src; return i; }
 const giBubble = mkImg(A_GI_BUBBLE), giTri = mkImg(A_GI_TRI), giTriB = mkImg(A_GI_TRIB);
+const giLine = mkImg(A_GI_LINE), giLineL = mkImg(A_GI_LINE_L), giLineR = mkImg(A_GI_LINE_R);
 const hsrImg = {}; for (const k in A_HSR) hsrImg[k] = mkImg(A_HSR[k].src);
 const hsrNext = mkImg(A_HSR_NEXT.src);
 
@@ -289,25 +293,67 @@ function drawGIDividerEnd(x, y, base, dir) {
   drawDiamond(x + dir * -(r * 2.1), y, r * 0.42, GI_GOLD);
   ctx.restore();
 }
+/* swash source crop within the 80x20 UI_TalkLine_Left sprite. Start at
+   x22 (just past the end ornament) so the crop carries the sprite's own
+   straight line + the smooth curve that rises into the swash — that way
+   the drawn line butts seamlessly into the ornament. The sprite's line
+   sits at y≈9.5/20, so nudge the vertical placement to match. */
+const GI_SWASH_SX = 22, GI_SWASH_SW = 58, GI_SWASH_ASPECT = 58 / 20, GI_SWASH_VOFF = 0.50;
 function drawGIDivider(cx, y, width, base, subtitle, subFS) {
-  const r = Math.max(3, base * 0.0060);
-  const th = Math.max(1, base * 0.0020);
   ctx.save();
-  ctx.fillStyle = GI_GOLD; ctx.strokeStyle = GI_GOLD; ctx.lineWidth = th;
+  ctx.fillStyle = GI_GOLD; ctx.strokeStyle = GI_GOLD;
+  ctx.lineWidth = Math.max(1, base * 0.0018);
   ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
-  const x0 = cx - width / 2, x1 = cx + width / 2;
-  if (subtitle) {
-    ctx.font = `600 ${subFS}px ${FONT_BODY}`;
-    const half = ctx.measureText(subtitle).width / 2 + subFS * 0.8;
-    ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(cx - half, y); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + half, y); ctx.lineTo(x1 - r, y); ctx.stroke();
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(subtitle, cx, y);
-  } else {
+  const r = Math.max(3, base * 0.0060);
+
+  if (!subtitle) {
+    /* original: plain gold line with diamond ends */
+    const x0 = cx - width / 2, x1 = cx + width / 2;
     ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(x1 - r, y); ctx.stroke();
+    drawGIDividerEnd(x0, y, base, 1);
+    drawGIDividerEnd(x1, y, base, -1);
+    ctx.restore();
+    return;
   }
+
+  /* with subtitle: [diamond]——line——[swash] text [swash]——line——[diamond].
+     Diamonds sit at the passed width (dialogue-tracked); the subtitle,
+     its flanking swashes stay a fixed size in the centre and the lines
+     fill whatever space remains. Swash is the real sprite curl at
+     ~0.78× the subtitle text height (measured in-game). */
+  const x0 = cx - width / 2, x1 = cx + width / 2;
+  ctx.font = `600 ${subFS}px ${FONT_BODY}`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  const tw = ctx.measureText(subtitle).width;
+  const gapTO = subFS * 0.12;                       // small gap text↔swash
+  const swH = subFS * 0.78, swW = swH * GI_SWASH_ASPECT;
+  const swDrawY = y - swH * GI_SWASH_VOFF;           // align sprite line to y
+  const lSwashRight = cx - tw / 2 - gapTO, lSwashLeft = lSwashRight - swW;
+  const rSwashLeft = cx + tw / 2 + gapTO, rSwashRight = rSwashLeft + swW;
+
+  /* swash curls first: exact sprite crop (mirror giLineL for the right side) */
+  ctx.shadowColor = "transparent"; ctx.shadowBlur = 0;
+  if (giLineL.complete) {
+    ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, lSwashLeft, swDrawY, swW, swH);
+    ctx.save(); ctx.translate(rSwashRight, swDrawY); ctx.scale(-1, 1);
+    ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, 0, 0, swW, swH);
+    ctx.restore();
+  }
+
+  /* crisp straight lines drawn ON TOP, overlapping the sprite's flat line
+     portion so the sharp line covers the soft raster; the seam falls on
+     the curved rise (swW*0.13 in) where softness reads as natural */
+  ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
+  const overlap = swW * 0.13;
+  ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(Math.max(x0 + r, lSwashLeft + overlap), y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(Math.min(x1 - r, rSwashRight - overlap), y); ctx.lineTo(x1 - r, y); ctx.stroke();
+
+  /* diamond ends + subtitle text */
+  ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
   drawGIDividerEnd(x0, y, base, 1);
   drawGIDividerEnd(x1, y, base, -1);
+  ctx.fillStyle = GI_GOLD;
+  ctx.fillText(subtitle, cx, y);
   ctx.restore();
 }
 function renderGI(base, portrait, cx) {
@@ -320,7 +366,7 @@ function renderGI(base, portrait, cx) {
 
   if (hasDialog) {
     ctx.font = `500 ${textFS}px ${FONT_BODY}`;
-    textLines = state.text.trim() ? wrapText(state.text.trim(), W*0.82) : [];
+    textLines = state.text.trim() ? wrapText(state.text.trim(), W*0.86) : [];
     if (textLines.length > 5) { textLines = textLines.slice(0,5); textLines[4] = textLines[4].replace(/.$/,"")+"…"; }
     const n = Math.max(textLines.length,1);
     const subH = state.subtitle.trim() ? subFS*0.85 + subFS*0.75 : 0;
@@ -344,7 +390,14 @@ function renderGI(base, portrait, cx) {
       ctx.fillStyle = GI_GOLD; ctx.font = `700 ${nameFS}px ${FONT_BODY}`; ctx.textBaseline = "top";
       ctx.fillText(state.name.trim(), cx, y);
       y += nameFS*1.30 + (state.subtitle.trim() ? subFS*0.85 : 0);
-      const divW = portrait ? W*0.80 : W*0.52;
+      /* bar length tracks the dialogue: widest line + ~25px each side,
+         clamped between a min and max (measured in-game). */
+      ctx.font = `500 ${textFS}px ${FONT_BODY}`;
+      let maxLineW = 0;
+      for (const l of textLines) maxLineW = Math.max(maxLineW, ctx.measureText(l).width);
+      const barMargin = base*0.023, barMin = base*0.30, barMax = W*0.90;
+      let divW = maxLineW > 0 ? maxLineW + barMargin*2 : barMin;
+      divW = Math.max(barMin, Math.min(barMax, divW));
       ctx.shadowBlur = 0; drawGIDivider(cx, y, divW, base, state.subtitle.trim(), subFS);
       ctx.shadowBlur = base*0.010;
       y += state.subtitle.trim() ? subFS*0.75 + textFS*0.38 : textFS*0.38;
@@ -572,78 +625,86 @@ function drawWarnIcon(cx2, cy2, s, base) {
 }
 function renderZZZ(base, portrait, cx) {
   const { W, H } = state;
-  const nameFS = base*0.030, textFS = base*0.033, choiceFS = base*0.030;
-  const lineH = textFS*1.5;
-  const boxRadius = base*0.022;
-  const ZZZ_BG = "rgba(16,17,21,.92)", ZZZ_BORDER = "rgba(236,238,242,.16)";
+  const YEL = "#ffe100";                       // New Eridu signature yellow
+  const BG  = "rgba(18,19,23,.90)";            // near-black translucent panel
+  const BORDER = "rgba(255,255,255,.10)";
+  const nameFS = base*0.033, textFS = base*0.032, choiceFS = base*0.029;
+  const lineH = textFS*1.5, boxRadius = base*0.016;
 
-  /* ----- dialogue box ----- */
-  const hasDialog = state.text.trim() || state.name.trim();
-  const boxW = portrait ? W*0.90 : W*0.58;
+  const nm = state.name.trim(), tx = state.text.trim();
+  const hasDialog = nm || tx;
+
+  /* ----- dialogue panel: wide, bottom-integrated, left content ----- */
+  const boxW = portrait ? W*0.92 : W*0.64;
   const boxLeft = (W - boxW)/2;
-  const padX = boxW*0.055, padY = base*0.032;
-  const bottomPad = base*0.045;
+  const padX = base*0.028, padTop = base*0.024, padBot = base*0.028;
+  const bottomPad = base*0.042;
+  const nameH = nm ? nameFS*1.35 : 0;
 
   let textLines = [];
-  if (hasDialog && state.text.trim()) {
-    ctx.font = `700 ${textFS}px ${FONT_BODY}`;
-    textLines = wrapText(state.text.trim(), boxW - padX*2 - textFS*1.1);
+  if (tx) {
+    ctx.font = `600 ${textFS}px ${FONT_BODY}`;
+    textLines = wrapText(tx, boxW - padX*2);
     if (textLines.length > 5) { textLines = textLines.slice(0,5); textLines[4] = textLines[4].replace(/.$/,"")+"…"; }
   }
-  const contentH = Math.max(1, textLines.length) * lineH;
-  const boxH = contentH + padY*2;
+  const textH = textLines.length * lineH;
+  const boxH = padTop + nameH + textH + padBot;
   const boxTop = H - bottomPad - boxH;
 
   if (hasDialog) {
     ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = base*0.02; ctx.shadowOffsetY = base*0.004;
+    ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base*0.022; ctx.shadowOffsetY = base*0.005;
     roundRectPath(boxLeft, boxTop, boxW, boxH, boxRadius);
-    ctx.fillStyle = ZZZ_BG; ctx.fill();
+    ctx.fillStyle = BG; ctx.fill();
     ctx.shadowColor = "transparent";
-    ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = ZZZ_BORDER; ctx.stroke();
+    ctx.lineWidth = Math.max(1, base*0.0013); ctx.strokeStyle = BORDER; ctx.stroke();
+    /* thin yellow accent bar down the left edge — ZZZ signature */
+    roundRectPath(boxLeft, boxTop, base*0.006, boxH, base*0.003);
+    ctx.fillStyle = YEL; ctx.fill();
     ctx.restore();
 
-    /* dialogue text: white bold, left-aligned */
-    ctx.save();
-    ctx.fillStyle = "#f6f7f9"; ctx.font = `700 ${textFS}px ${FONT_BODY}`;
-    ctx.textAlign = "left"; ctx.textBaseline = "top";
-    let ty = boxTop + padY;
-    for (const line of textLines) { ctx.fillText(line, boxLeft + padX, ty); ty += lineH; }
-    ctx.restore();
+    let cy = boxTop + padTop;
 
-    /* » continue mark, bottom-right of box */
-    if (state.showTri) {
-      const s = textFS*0.62, mx = boxLeft + boxW - padX*0.7, my = boxTop + boxH - padY*0.7;
-      drawChevron(mx - s*0.55, my, s, "rgba(236,238,242,.85)", Math.max(1.5, base*0.003));
-      drawChevron(mx - s*0.05, my, s, "rgba(236,238,242,.85)", Math.max(1.5, base*0.003));
+    /* name: top-left heading, white bold, with a slanted yellow tick */
+    if (nm) {
+      const tickH = nameFS*0.86, tickW = base*0.009;
+      const ty = cy + (nameFS*1.15 - tickH)/2, tX = boxLeft + padX;
+      ctx.save();
+      ctx.fillStyle = YEL; ctx.beginPath();
+      ctx.moveTo(tX + tickH*0.32, ty); ctx.lineTo(tX + tickH*0.32 + tickW, ty);
+      ctx.lineTo(tX + tickW, ty + tickH); ctx.lineTo(tX, ty + tickH); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#ffffff"; ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
+      ctx.textAlign = "left"; ctx.textBaseline = "top";
+      ctx.fillText(nm, tX + tickW + base*0.014, cy);
+      ctx.restore();
+      cy += nameH;
     }
 
-    /* name pill: floating rounded tag centered above the box top edge */
-    if (state.name.trim()) {
-      ctx.font = `700 ${nameFS}px ${FONT_BODY}`;
-      const nw = ctx.measureText(state.name.trim()).width;
-      const pillH = nameFS*1.9, pillW = nw + nameFS*1.7;
-      const pillX = cx - pillW/2, pillY = boxTop - pillH*0.58;
+    /* dialogue text: white, left-aligned */
+    if (textLines.length) {
       ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.012; ctx.shadowOffsetY = base*0.002;
-      roundRectPath(pillX, pillY, pillW, pillH, pillH/2);
-      ctx.fillStyle = "rgba(20,21,26,.96)"; ctx.fill();
-      ctx.shadowColor = "transparent";
-      ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = "rgba(236,238,242,.18)"; ctx.stroke();
-      ctx.fillStyle = "#f6f7f9"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(state.name.trim(), cx, pillY + pillH/2 + nameFS*0.02);
+      ctx.fillStyle = "#f1f2f4"; ctx.font = `600 ${textFS}px ${FONT_BODY}`;
+      ctx.textAlign = "left"; ctx.textBaseline = "top";
+      let ty = cy;
+      for (const l of textLines) { ctx.fillText(l, boxLeft + padX, ty); ty += lineH; }
       ctx.restore();
+    }
+
+    /* advance arrow: single yellow chevron, bottom-right of box */
+    if (state.showTri) {
+      const s = textFS*0.72;
+      drawChevron(boxLeft + boxW - padX*0.85, boxTop + boxH - padBot*0.5, s, YEL, Math.max(1.6, base*0.0032));
     }
   }
 
-  /* ----- choices: rounded pills on the right, icon + white bold text ----- */
+  /* ----- choices: rounded buttons on the right, icon + white bold ----- */
   const items = state.choices.map((s,i)=>({t:s.trim(), icon: state.choiceIcons[i]||"normal"})).filter(o=>o.t);
   if (items.length) {
-    const rightMargin = W*0.04;
-    const maxPillW = portrait ? W*0.62 : W*0.40;
-    const iconBox = choiceFS*1.2, gapI = choiceFS*0.5;
-    const padH = choiceFS*0.95, padV = choiceFS*0.5;
-    const rowGap = choiceFS*0.6, clineH = choiceFS*1.35;
+    const rightMargin = W*0.045;
+    const maxPillW = portrait ? W*0.64 : W*0.40;
+    const iconBox = choiceFS*1.25, gapI = choiceFS*0.55;
+    const padH = choiceFS*1.0, padV = choiceFS*0.55;
+    const rowGap = choiceFS*0.55, clineH = choiceFS*1.35;
     const maxTextW = maxPillW - padH*2 - iconBox - gapI;
 
     ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
@@ -653,29 +714,32 @@ function renderZZZ(base, portrait, cx) {
       return { ...o, lines, tw, h: Math.max(iconBox, lines.length*clineH) + padV*2 };
     });
     const totalH = rows.reduce((a,r)=>a+r.h,0) + rowGap*(rows.length-1);
-    /* stack sits above the dialogue box, right-aligned */
-    let yBottom = boxTop - base*0.05;
-    let y = yBottom - totalH;
+    let y = (boxTop - base*0.05) - totalH;
     if (y < base*0.05) y = base*0.05;
+
     for (const r of rows) {
       const pillW = Math.min(maxPillW, padH*2 + iconBox + gapI + r.tw);
       const x = W - rightMargin - pillW, top = y, mid = top + r.h/2;
+      const isEvent = r.icon === "event";
       ctx.save();
       ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = base*0.012; ctx.shadowOffsetY = base*0.003;
-      roundRectPath(x, top, pillW, r.h, r.h/2);
-      ctx.fillStyle = ZZZ_BG; ctx.fill();
+      roundRectPath(x, top, pillW, r.h, r.h*0.5);
+      ctx.fillStyle = BG; ctx.fill();
       ctx.shadowColor = "transparent";
-      ctx.lineWidth = Math.max(1, base*0.0016); ctx.strokeStyle = ZZZ_BORDER; ctx.stroke();
+      ctx.lineWidth = Math.max(1, base*0.0013);
+      ctx.strokeStyle = isEvent ? "rgba(232,65,46,.55)" : BORDER; ctx.stroke();
+      /* left accent tick */
+      roundRectPath(x, top, base*0.005, r.h, base*0.0025);
+      ctx.fillStyle = isEvent ? "#e8412e" : YEL; ctx.fill();
       /* icon */
       const ix = x + padH + iconBox/2;
-      if (r.icon === "event") drawWarnIcon(ix, mid, iconBox*0.9, base);
-      else drawChevron(ix - iconBox*0.1, mid, iconBox*0.7, "rgba(236,238,242,.9)", Math.max(1.6, base*0.0032));
+      if (isEvent) drawWarnIcon(ix, mid, iconBox*0.92, base);
+      else drawChevron(ix - iconBox*0.08, mid, iconBox*0.7, YEL, Math.max(1.6, base*0.0032));
       /* text */
-      ctx.fillStyle = "#f6f7f9"; ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
+      ctx.fillStyle = "#f1f2f4"; ctx.font = `700 ${choiceFS}px ${FONT_BODY}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      const tx = x + padH + iconBox + gapI;
-      const ty0 = mid - (r.lines.length-1)*clineH/2;
-      r.lines.forEach((l,j)=>ctx.fillText(l, tx, ty0 + j*clineH));
+      const tX = x + padH + iconBox + gapI, ty0 = mid - (r.lines.length-1)*clineH/2;
+      r.lines.forEach((l,j)=>ctx.fillText(l, tX, ty0 + j*clineH));
       ctx.restore();
       y += r.h + rowGap;
     }
