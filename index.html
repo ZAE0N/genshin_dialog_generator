@@ -298,7 +298,7 @@ function drawGIDividerEnd(x, y, base, dir) {
    straight line + the smooth curve that rises into the swash — that way
    the drawn line butts seamlessly into the ornament. The sprite's line
    sits at y≈9.5/20, so nudge the vertical placement to match. */
-const GI_SWASH_SX = 22, GI_SWASH_SW = 58, GI_SWASH_ASPECT = 58 / 20, GI_SWASH_VOFF = 0.475;
+const GI_SWASH_SX = 22, GI_SWASH_SW = 58, GI_SWASH_ASPECT = 58 / 20, GI_SWASH_VOFF = 0.50;
 function drawGIDivider(cx, y, width, base, subtitle, subFS) {
   ctx.save();
   ctx.fillStyle = GI_GOLD; ctx.strokeStyle = GI_GOLD;
@@ -331,12 +331,7 @@ function drawGIDivider(cx, y, width, base, subtitle, subFS) {
   const lSwashRight = cx - tw / 2 - gapTO, lSwashLeft = lSwashRight - swW;
   const rSwashLeft = cx + tw / 2 + gapTO, rSwashRight = rSwashLeft + swW;
 
-  /* straight lines butt right up against the swash crop (whose left part
-     is the sprite's own line), so the join is seamless */
-  ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(Math.max(x0 + r, lSwashLeft), y); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(Math.min(x1 - r, rSwashRight), y); ctx.lineTo(x1 - r, y); ctx.stroke();
-
-  /* swash curls: exact sprite crop (mirror giLineL for the right side) */
+  /* swash curls first: exact sprite crop (mirror giLineL for the right side) */
   ctx.shadowColor = "transparent"; ctx.shadowBlur = 0;
   if (giLineL.complete) {
     ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, lSwashLeft, swDrawY, swW, swH);
@@ -344,6 +339,14 @@ function drawGIDivider(cx, y, width, base, subtitle, subFS) {
     ctx.drawImage(giLineL, GI_SWASH_SX, 0, GI_SWASH_SW, 20, 0, 0, swW, swH);
     ctx.restore();
   }
+
+  /* crisp straight lines drawn ON TOP, overlapping the sprite's flat line
+     portion so the sharp line covers the soft raster; the seam falls on
+     the curved rise (swW*0.13 in) where softness reads as natural */
+  ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
+  const overlap = swW * 0.13;
+  ctx.beginPath(); ctx.moveTo(x0 + r, y); ctx.lineTo(Math.max(x0 + r, lSwashLeft + overlap), y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(Math.min(x1 - r, rSwashRight - overlap), y); ctx.lineTo(x1 - r, y); ctx.stroke();
 
   /* diamond ends + subtitle text */
   ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowBlur = base * 0.004;
